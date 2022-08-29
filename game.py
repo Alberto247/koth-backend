@@ -145,14 +145,23 @@ class Game:
 
         self.reachability_fix(rechable_spots)
 
+        assert self.reachability_test(rechable_spots)==True, f"Some places are not reachable?"
+
         for x in self.player_spawns:
             assert self.map[x].get_point_type()==HEX_Type.FLAG, f"Sanity check failed, a spawn is now {self.map[x].get_point_type()}"
         
         for x in self.crystal_spots:
             assert self.map[x].get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL], f"Sanity check failed, a crystal is now {self.map[x].get_point_type()}"
 
-
-
+    def reachability_test(self, reachable_spots):
+        mapcopy=copy.deepcopy(self.map)
+        start=self.player_spawns[0]
+        self.bfs(mapcopy, start)
+        plot(mapcopy)
+        for x in reachable_spots:
+            if(mapcopy[x].get_owner_ID()!=0):
+                return False
+        return True
     
     def reachability_fix(self, reachable_spots):
         mapcopy=copy.deepcopy(self.map) #TODO: maybe we can avoid copy if later on we reset all the map owning, this is not too slow however
@@ -165,7 +174,6 @@ class Game:
                 while(mapcopy[start].get_owner_ID()!=0 and all((mapcopy[_].get_point_type() in [HEX_Type.WALL, HEX_Type.GRASS] for _ in line[:-1]))): # and nothing is in the path
                     start=random.choice(list(mapcopy.hash_map.values()))
                     line=hex_linedraw(start, x)
-                print(line)
                 for _ in line[:-1]:
                     self.map[_].set_point_type(HEX_Type.GRASS) # and color!
     

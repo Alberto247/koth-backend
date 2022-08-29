@@ -10,8 +10,8 @@ from lloyd import *
 
 game = Game()
 
-#compute_voronoi(game.get_map(), game.get_player_spawns())
-#plot(game.get_map())
+compute_voronoi(game.get_map(), game.get_player_spawns())
+plot(game.get_map())
 
 
-#input()
+input()
