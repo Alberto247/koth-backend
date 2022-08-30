@@ -4,10 +4,23 @@ import numpy as np
 from config import *
 from Hex import Hex
 from hex_types import HEX_Type
+from time import time
 
 player_colors={None:"white", 0:"g", 1:"b", 2:"r", 3:"c", 4:"m", 5:"y", 6:"salmon", 7:"darkorange", 8:"lime", 9:"violet", 10:"pink", 11:"grey", 12:"royalblue", 13:"palegreen", 14:"peru", 15:"orangered"}
 
-def plot(map):
+def timer_func(func):
+    # This function shows the execution time of 
+    # the function object passed
+    def wrap_func(*args, **kwargs):
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        print(f'Function {func.__name__!r} executed in {(t2-t1):.4f}s')
+        return result
+    return wrap_func
+
+
+def plot(map, name = None):
     coord=[]
     colors=[]
     labels=[]
@@ -20,13 +33,13 @@ def plot(map):
                 colors.append([player_colors[p.get_owner_ID()]])
                 hex_type=p.get_point_type()
                 if(hex_type==HEX_Type.FLAG):
-                    labels.append([str(p.get_owner_ID())])
+                    labels.append([f"S {p.get_current_value()}"])
                 elif(hex_type==HEX_Type.WALL):
                     colors.pop()
                     colors.append(["black"])
                     labels.append([""])
                 elif(hex_type==HEX_Type.FORT):
-                    labels.append(["H"])
+                    labels.append([f"H {p.get_current_value()}"])
                 elif(hex_type==HEX_Type.CRYPTO_CRYSTAL):
                     colors.pop()
                     colors.append(["Green"])
@@ -47,8 +60,16 @@ def plot(map):
                     colors.pop()
                     colors.append(["Brown"])
                     labels.append(["MC"])
-                else:
+                elif(hex_type==HEX_Type.UNKNOWN_EMPTY):
+                    colors.pop()
+                    colors.append(["grey"])
                     labels.append([""])
+                elif(hex_type==HEX_Type.UNKNOWN_OBJECT):
+                    colors.pop()
+                    colors.append(["Purple"])
+                    labels.append([""])
+                else:
+                    labels.append([str(p.get_current_value())])
 
     assert(len(labels)==len(coord))
 
@@ -73,4 +94,8 @@ def plot(map):
     # Also add scatter points in hexagon centres
     ax.scatter(hcoord, vcoord, c=[c[0].lower() for c in colors], alpha=0.5)
 
-    plt.show(block=False)
+    if name == None:
+        plt.show(block=False)
+    else:
+        plt.savefig(name)
+        plt.close()

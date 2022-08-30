@@ -6,7 +6,7 @@ from hex_types import *
 import random
 from math import floor
 import copy
-from debug import plot
+from debug import plot, timer_func
 
 
 class Game:
@@ -16,13 +16,15 @@ class Game:
         self.player_spawns=[]
         self.player_controllers=[]
         self.crystal_spots=[]
+        self.player_crystals=[]
+        self.current_tick=0
 
 
         for q in range(-SIDE, SIDE+1):
             for r in range(-SIDE, SIDE+1):
                 s=-(q+r)
                 if(-SIDE<=s<=SIDE):
-                    self.map[(q, r, s)]=Hex((q, r, s))
+                    self.map[(q, r, s)]=Hex((q, r, s), HEX_Type.GRASS)
 
         print("Generating spawn points...")
 
@@ -37,7 +39,7 @@ class Game:
             self.map[(q, r, s)].set_point_type(HEX_Type.FLAG)
             self.map[(q, r, s)].set_owner_ID(x)
             self.map[(q, r, s)].set_current_value(1)
-            self.player_spawns.append(Hex((q, r, s) , HEX_Type.FLAG))
+            self.player_spawns.append(Hex((q, r, s), HEX_Type.FLAG))
 
         print("Applying some distance...")
 
@@ -134,18 +136,21 @@ class Game:
                 start=Hex(random.choice(self.map[start].get_neighbors()))
         
         print("Running reachability fix...")
-        print(self.player_spawns)
 
         # verify everyone can reach everyone
         '''
          TODO: this currently does a bfs from player 0, then checks if any player is not reachable.
                In that case it picks a random point and draws a line to the unreachable player, making sure not to destroy anything important in its path
         '''
-        rechable_spots=self.player_spawns+self.crystal_spots
+        reachable_spots=self.player_spawns+self.crystal_spots
 
-        self.reachability_fix(rechable_spots)
+        self.reachability_fix(reachable_spots)
 
-        assert self.reachability_test(rechable_spots)==True, f"Some places are not reachable?"
+        print("Running mountain fix...")
+
+        self.mountain_fix()
+
+        assert self.reachability_test(reachable_spots)==True, f"Some places are not reachable?"
 
         for x in self.player_spawns:
             assert self.map[x].get_point_type()==HEX_Type.FLAG, f"Sanity check failed, a spawn is now {self.map[x].get_point_type()}"
@@ -153,15 +158,45 @@ class Game:
         for x in self.crystal_spots:
             assert self.map[x].get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL], f"Sanity check failed, a crystal is now {self.map[x].get_point_type()}"
 
+        print("Placing forts...")
+
+        tot_forts=floor(total_tiles*FORT_DENSITY)
+        n_forts=0
+        while(n_forts<tot_forts):
+            s=-100
+            q=0
+            r=0
+            while(not (-SIDE<=s<=SIDE) or not self.map[(q, r, s)].get_point_type()==HEX_Type.GRASS):
+                q=random.randint(-SIDE, SIDE)
+                r=random.randint(-SIDE, SIDE)
+                s=-(q+r)
+            self.map[(q, r, s)].set_point_type(HEX_Type.FORT)
+            number=random.randint(MIN_FORT_COST, MAX_FORT_COST)
+            self.map[(q, r, s)].set_current_value(number)
+            n_forts+=1
+        
+
+
+        
+
     def reachability_test(self, reachable_spots):
         mapcopy=copy.deepcopy(self.map)
         start=self.player_spawns[0]
         self.bfs(mapcopy, start)
-        plot(mapcopy)
         for x in reachable_spots:
             if(mapcopy[x].get_owner_ID()!=0):
                 return False
         return True
+    
+    def mountain_fix(self):
+        mapcopy=copy.deepcopy(self.map)
+        start=self.player_spawns[0]
+        self.bfs(mapcopy, start)
+        for hex in mapcopy.hash_map.values():
+            if hex.get_owner_ID()!=0:
+                self.map[hex.get_position_tuple()].set_point_type(HEX_Type.WALL)
+        
+
     
     def reachability_fix(self, reachable_spots):
         mapcopy=copy.deepcopy(self.map) #TODO: maybe we can avoid copy if later on we reset all the map owning, this is not too slow however
@@ -171,11 +206,12 @@ class Game:
             if(mapcopy[x].get_owner_ID()!=0): #if we find something not connected
                 start=random.choice(list(mapcopy.hash_map.values())) #choose a random point until it is a connected point
                 line=[]
-                while(mapcopy[start].get_owner_ID()!=0 and all((mapcopy[_].get_point_type() in [HEX_Type.WALL, HEX_Type.GRASS] for _ in line[:-1]))): # and nothing is in the path
+                while(mapcopy[start].get_owner_ID()!=0 or line==[]): # and nothing is in the path
                     start=random.choice(list(mapcopy.hash_map.values()))
                     line=hex_linedraw(start, x)
-                for _ in line[:-1]:
-                    self.map[_].set_point_type(HEX_Type.GRASS) # and color!
+                for _ in line:
+                    if(self.map[_].get_point_type()==HEX_Type.WALL):
+                        self.map[_].set_point_type(HEX_Type.GRASS) # and color!
     
     def bfs(self, map, start):
         to_visit=[start]
@@ -188,7 +224,78 @@ class Game:
                     if(neighbour not in visited):
                         to_visit.append(neighbour)
                         visited.append(neighbour)
-            
+    
+    def add_player(self, controller):
+        self.player_controllers.append(controller)
+        self.player_crystals.append([])
+    
+    @timer_func
+    def generate_player_map(self, player):
+        player_map=copy.deepcopy(self.map)
+        for tile in player_map.hash_map.values():
+            if(tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in tile.get_neighbors()])):
+                if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
+                    tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
+                else:
+                    tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
+                tile.set_current_value(0)
+                tile.set_owner_ID(None)
+        for crystal in self.crystal_spots:
+            if(crystal.get_point_type() in self.player_crystals[player]):
+                player_map[crystal]=copy.deepcopy(self.map[crystal])
+                for x in crystal.get_neighbors():
+                    player_map[x]=copy.deepcopy(self.map[x])
+                    for y in player_map[x].get_neighbors():
+                        player_map[y]=copy.deepcopy(self.map[y])
+        return player_map
+
+    @timer_func
+    def tick(self):
+        self.current_tick+=1
+        for player in range(PLAYERS):
+            player_map=self.generate_player_map(player)
+            player_move=self.player_controllers[player].tick({"map":player_map, "ID":player, "tick":self.current_tick})
+            self.do_move(player, player_move)
+        self.update_map()
+
+    @timer_func
+    def do_move(self, player, move): #TODO: handle crystals
+        hex_start=self.map[move[0]]
+        hex_end=self.map[move[1]]
+        if(hex_start.get_owner_ID()==player and hex_start.get_current_value()>1 and hex_end.get_point_type()!=HEX_Type.WALL):
+            amount=hex_start.get_current_value()-1
+            hex_start.set_current_value(1)
+            if(hex_end.get_owner_ID()==None):
+                if(hex_end.get_point_type()!=HEX_Type.FORT):
+                    hex_end.set_owner_ID(player)
+                    hex_end.set_current_value(amount)
+                else:
+                    hex_end.set_current_value(hex_end.get_current_value()-amount)
+                    if(hex_end.get_current_value()<0):
+                        hex_end.set_owner_ID(player)
+                        hex_end.set_current_value(abs(hex_end.get_current_value()))
+            else:
+                if(hex_end.get_owner_ID()==player):
+                    hex_end.set_current_value(hex_end.get_current_value()+amount)
+                else:
+                    hex_end.set_current_value(hex_end.get_current_value()-amount)
+                    if(hex_end.get_current_value()<0):
+                        hex_end.set_owner_ID(player)
+                        hex_end.set_current_value(abs(hex_end.get_current_value()))
+                        if(hex_end.get_point_type()==HEX_Type.FLAG):
+                            pass # TODO: Player is killed
+            if(hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
+                self.player_crystals[player].append(hex_end.get_point_type())
+
+    def update_map(self):
+        for tile in self.map.hash_map.values():
+            if(tile.get_owner_ID()!=None):
+                if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
+                    tile.set_current_value(tile.get_current_value()+1)
+                elif(self.current_tick%25==0):
+                    tile.set_current_value(tile.get_current_value()+1)
+
+
 
     def get_map(self):
         return self.map
