@@ -301,14 +301,15 @@ class Game:
     @timer_func
     def tick(self):
         self.current_tick+=1
+        print(self.current_tick)
         moves=[]
         edited_hex = set()
+
         for player in range(PLAYERS):
             player_move=self.player_controllers[player].tick(self.current_tick)
             moves.append(player_move)
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
-        
         for player in range(PLAYERS):
             self.do_move(player, moves[player])
         edited_hex |= self.update_map()

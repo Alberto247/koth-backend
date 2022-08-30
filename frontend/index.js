@@ -31,7 +31,7 @@ const Hex = Honeycomb.extendHex({
 let hexagon_map = {}
 let hex_map = {}
 let text_labels = {}
-let player_pov = 1
+let player_pov = 0
 
 
 function create_empty_map() {
@@ -80,19 +80,19 @@ function edit_hexagon(hex) {
         text = `H ${current_value}`
         color = PLAYER_COLORS[owner_ID]
     } else if (point_type === POINT_TYPES.CRYPTO_CRYSTAL) {
-        text = 'CC'
+        text = `CC ${current_value}`
         color = 'green'
     } else if (point_type === POINT_TYPES.WEB_CRYSTAL) {
-        text = 'WC'
+        text = `WC ${current_value}`
         color = 'yellow'
     } else if (point_type === POINT_TYPES.REV_CRYSTAL) {
-        text = 'RC'
+        text = `RC ${current_value}`
         color = 'blue'
     } else if (point_type === POINT_TYPES.PWN_CRYSTAL) {
-        text = 'PC'
+        text = `PC ${current_value}`
         color = 'purple'
     } else if (point_type === POINT_TYPES.MISC_CRYSTAL) {
-        text = 'MC'
+        text = `MC ${current_value}`
         color = 'brown'
     } else if (point_type === POINT_TYPES.UNKNOWN_EMPTY) {
         color = 'grey'
@@ -219,6 +219,14 @@ async function start() {
             intervalid = undefined
         }
     })
+
+    document.getElementById('pov').addEventListener('click', e => {
+        player_pov=parseInt(document.getElementById('player').value);
+        create_empty_map();
+        start()
+    })
+
+
 
     enable_buttons()
 }

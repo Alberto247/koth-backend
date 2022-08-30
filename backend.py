@@ -10,14 +10,14 @@ import imageio
 import os
 import time
 
-os.system("RMDIR /Q/S global")
-os.system("RMDIR /Q/S players")
-os.mkdir("global")
-os.mkdir("players")
-for x in range(PLAYERS):
-    os.mkdir(f"players/{x}")
+# os.system("RMDIR /Q/S global")
+# os.system("RMDIR /Q/S players")
+# os.mkdir("global")
+# os.mkdir("players")
+# for x in range(PLAYERS):
+#     os.mkdir(f"players/{x}")
 
-filenames = []
+# filenames = []
 
 
 
@@ -35,7 +35,9 @@ start=time.time()
 for i in range(SIMULATION_LENGTH):
     game.tick()
 print(time.time()-start)
-game.json_serialize_history('frontend/history.json')
+# for player in range(PLAYERS):
+#     plot(game.player_controllers[player].get_map(), f"players/{player}/{SIMULATION_LENGTH}.png")
+# game.json_serialize_history('frontend/history.json')
 
 
 """ 
