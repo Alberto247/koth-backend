@@ -282,7 +282,7 @@ class Game:
                             player_tile.set_current_value(0)
                             player_tile.set_owner_ID(None)
                         else:
-                            player_map[tile_tuple]=copy.deepcopy(map_neighbour_tile)
+                            player_map[neighbour_tile]=copy.deepcopy(map_neighbour_tile)
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
                     player_map[crystal]=copy.deepcopy(self.map[crystal])
@@ -290,6 +290,13 @@ class Game:
                         player_map[x]=copy.deepcopy(self.map[x])
                         for y in player_map[x].get_neighbors():
                             player_map[y]=copy.deepcopy(self.map[y])
+            for tile in player_map.hash_map.values():
+                if(tile.get_owner_ID()!=None):
+                    if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
+                        tile.set_current_value(tile.get_current_value()+1)
+                    elif(self.current_tick%25==0):
+                        tile.set_current_value(tile.get_current_value()+1)
+            
 
     @timer_func
     def tick(self):
@@ -301,6 +308,7 @@ class Game:
             moves.append(player_move)
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
+        
         for player in range(PLAYERS):
             self.do_move(player, moves[player])
         edited_hex |= self.update_map()
@@ -349,15 +357,11 @@ class Game:
                     edited_hex.add(tile.get_position_tuple())
         return edited_hex
 
-
-
-
     def get_map(self):
         return self.map
     
     def get_player_spawns(self):
         return self.player_spawns
-    
 
     def json_serialize_history(self, filename):
         import json
