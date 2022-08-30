@@ -1,33 +1,27 @@
 from debug import *
-import json
-import random
+import importlib.util
+import sys
 
-# suppongo di essere sempre il tizio 0
+
+
+# suppongo di essere sempre il tizio 0 
+# innanzitutto non supponi un cazzo te
 class Player():
-    def __init__(self):
-        self.player_id = 0
-        self.map = None
+    def __init__(self, ID, controller):
+        self.player_id = ID
+        self.player_map=None
+        spec = importlib.util.spec_from_file_location("module.name", controller)
+        bot_controller = importlib.util.module_from_spec(spec)
+        sys.modules["module.name"] = bot_controller
+        spec.loader.exec_module(bot_controller)
+        self.controller=bot_controller.Bot(self.player_id)
     
-    def find_my_land(self):
-        if self.map == None:
-            return []
-        lands = []
-        for tile in self.map.hash_map.values():
-            if tile.get_owner_ID() == self.player_id:
-                lands.append(tile)
-        return lands
+    def tick(self, tick):
+        return self.controller.tick({"map":self.player_map, "ID":self.player_id, "tick":tick})
+    
+    def set_map(self, map):
+        self.player_map=map
+    
+    def get_map(self):
+        return self.player_map
 
-    def tick(self, data):
-        self.map = data["map"]
-        self.player_id = data["ID"]
-        myland = self.find_my_land()
-        assert len(myland) != 0
-        #plot(self.map, f"players/{self.player_id}/{data['tick']}.png")
-        tries = 0
-        while tries < 100:
-            startpos = random.choice(myland)
-            candidate_end = random.choice(self.map[startpos].get_neighbors())
-            if self.map[candidate_end].get_point_type() != HEX_Type.WALL and self.map[startpos].get_current_value()>1:
-                return (self.map[startpos].get_position_tuple(), self.map[candidate_end].get_position_tuple())
-            tries += 1
-        return ((0,0,0), (0,0,0))

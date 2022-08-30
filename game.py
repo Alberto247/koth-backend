@@ -229,7 +229,6 @@ class Game:
         self.player_controllers.append(controller)
         self.player_crystals.append([])
     
-    @timer_func
     def generate_player_map(self, player):
         player_map=copy.deepcopy(self.map)
         for tile in player_map.hash_map.values():
@@ -248,17 +247,59 @@ class Game:
                     for y in player_map[x].get_neighbors():
                         player_map[y]=copy.deepcopy(self.map[y])
         return player_map
+    
+    def generate_all_players_maps(self):
+        for player in range(PLAYERS):
+            self.player_controllers[player].set_map(self.generate_player_map(player))
+    
+    def update_players_maps(self, moves):
+        for player in range(PLAYERS):
+            player_map=self.player_controllers[player].get_map()
+            for move in moves:
+                for tile_tuple in move:
+                    map_tile=self.map[tile_tuple]
+                    player_tile=player_map[tile_tuple]
+                    if(map_tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in map_tile.get_neighbors()])):
+                        if(map_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
+                            player_tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
+                        else:
+                            player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
+                        player_tile.set_current_value(0)
+                        player_tile.set_owner_ID(None)
+                    else:
+                        player_map[tile_tuple]=copy.deepcopy(map_tile)
+                    for neighbour_tile in map_tile.get_neighbors():
+                        map_neighbour_tile=self.map[neighbour_tile]
+                        player_tile=player_map[neighbour_tile]
+                        if(map_neighbour_tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in map_neighbour_tile.get_neighbors()])):
+                            if(map_neighbour_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
+                                player_tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
+                            else:
+                                player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
+                            player_tile.set_current_value(0)
+                            player_tile.set_owner_ID(None)
+                        else:
+                            player_map[tile_tuple]=copy.deepcopy(map_neighbour_tile)
+            for crystal in self.crystal_spots:
+                if(crystal.get_point_type() in self.player_crystals[player]):
+                    player_map[crystal]=copy.deepcopy(self.map[crystal])
+                    for x in crystal.get_neighbors():
+                        player_map[x]=copy.deepcopy(self.map[x])
+                        for y in player_map[x].get_neighbors():
+                            player_map[y]=copy.deepcopy(self.map[y])
 
     @timer_func
     def tick(self):
         self.current_tick+=1
+        moves=[]
         for player in range(PLAYERS):
-            player_map=self.generate_player_map(player)
-            player_move=self.player_controllers[player].tick({"map":player_map, "ID":player, "tick":self.current_tick})
-            self.do_move(player, player_move)
+            moves.append(self.player_controllers[player].tick(self.current_tick))
+        for player in range(PLAYERS):
+            self.do_move(player, moves[player])
         self.update_map()
+        self.update_players_maps(moves)
 
-    @timer_func
+
     def do_move(self, player, move): #TODO: handle crystals
         hex_start=self.map[move[0]]
         hex_end=self.map[move[1]]
