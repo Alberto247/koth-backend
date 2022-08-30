@@ -1,6 +1,6 @@
 from enum import Enum
 
-class HEX_Type(Enum):
+class HEX_Type(int, Enum):
     UNKNOWN_OBJECT = -2
     UNKNOWN_EMPTY = -1
     GRASS = 0

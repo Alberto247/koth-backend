@@ -22,7 +22,7 @@ class Bot():
         self.player_id = data["ID"]
         myland = self.find_my_land()
         assert len(myland) != 0
-        plot(self.map, f"players/{self.player_id}/{data['tick']}.png")
+        #plot(self.map, f"players/{self.player_id}/{data['tick']}.png")
         tries = 0
         while tries < 100:
             startpos = random.choice(myland)

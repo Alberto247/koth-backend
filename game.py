@@ -18,6 +18,8 @@ class Game:
         self.crystal_spots=[]
         self.player_crystals=[]
         self.current_tick=0
+        self.history = []
+
 
 
         for q in range(-SIDE, SIDE+1):
@@ -252,6 +254,7 @@ class Game:
         for player in range(PLAYERS):
             self.player_controllers[player].set_map(self.generate_player_map(player))
     
+    @timer_func
     def update_players_maps(self, moves):
         for player in range(PLAYERS):
             player_map=self.player_controllers[player].get_map()
@@ -292,14 +295,19 @@ class Game:
     def tick(self):
         self.current_tick+=1
         moves=[]
+        edited_hex = set()
         for player in range(PLAYERS):
-            moves.append(self.player_controllers[player].tick(self.current_tick))
+            player_move=self.player_controllers[player].tick(self.current_tick)
+            moves.append(player_move)
+            edited_hex.add(player_move[0])
+            edited_hex.add(player_move[1])
         for player in range(PLAYERS):
             self.do_move(player, moves[player])
-        self.update_map()
+        edited_hex |= self.update_map()
         self.update_players_maps(moves)
+        self.history.append(self.map.serializable_partial(edited_hex))
 
-
+    @timer_func
     def do_move(self, player, move): #TODO: handle crystals
         hex_start=self.map[move[0]]
         hex_end=self.map[move[1]]
@@ -328,13 +336,19 @@ class Game:
             if(hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
                 self.player_crystals[player].append(hex_end.get_point_type())
 
+    @timer_func
     def update_map(self):
+        edited_hex = set()
         for tile in self.map.hash_map.values():
             if(tile.get_owner_ID()!=None):
                 if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                     tile.set_current_value(tile.get_current_value()+1)
+                    edited_hex.add(tile.get_position_tuple())
                 elif(self.current_tick%25==0):
                     tile.set_current_value(tile.get_current_value()+1)
+                    edited_hex.add(tile.get_position_tuple())
+        return edited_hex
+
 
 
 
@@ -344,3 +358,7 @@ class Game:
     def get_player_spawns(self):
         return self.player_spawns
     
+
+    def json_serialize_history(self, filename):
+        import json
+        json.dump(self.history, open(filename, 'w'))

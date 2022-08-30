@@ -10,29 +10,6 @@ import imageio
 import os
 import time
 
-
-game = Game()
-for x in range(PLAYERS):
-    game.add_player(Player(x, "./random_bot.py"))
-
-game.generate_all_players_maps()
-
-""" game.tick()
-plot(game.get_map())
-input()
-game.tick()
-plot(game.get_map())
-input()
-game.tick()
-plot(game.get_map())
-input()
-game.tick()
-plot(game.get_map())
-input()
-game.tick()
-plot(game.get_map())
-input() """
-
 os.system("RMDIR /Q/S global")
 os.system("RMDIR /Q/S players")
 os.mkdir("global")
@@ -41,19 +18,25 @@ for x in range(PLAYERS):
     os.mkdir(f"players/{x}")
 
 filenames = []
+
+
+
+
+game = Game()
+for x in range(PLAYERS):
+    game.add_player(Player(x, "./random_bot.py"))
+
+game.generate_all_players_maps()
+
+
 print("Starting simulation")
 
 start=time.time()
 for i in range(SIMULATION_LENGTH):
-    plot(game.get_map(), f"global/{i}.png")
-    filenames.append(f"global/{i}.png")
     game.tick()
 print(time.time()-start)
+game.json_serialize_history('frontend/history.json')
 
-with imageio.get_writer('gifs/global.gif', mode='I') as writer:
-    for filename in filenames:
-        image = imageio.imread(filename)
-        writer.append_data(image)
 
 """ 
 for x in range(PLAYERS):

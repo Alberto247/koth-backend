@@ -6,7 +6,8 @@ from Hex import Hex
 from hex_types import HEX_Type
 from time import time
 
-player_colors={None:"white", 0:"g", 1:"b", 2:"r", 3:"c", 4:"m", 5:"y", 6:"salmon", 7:"darkorange", 8:"lime", 9:"violet", 10:"pink", 11:"grey", 12:"royalblue", 13:"palegreen", 14:"peru", 15:"orangered"}
+player_colors = {None: "white", 0: "g", 1: "b", 2: "r", 3: "c", 4: "m", 5: "y", 6: "salmon", 7: "darkorange",
+                 8: "lime", 9: "violet", 10: "pink", 11: "grey", 12: "royalblue", 13: "palegreen", 14: "peru", 15: "orangered"}
 
 def timer_func(func):
     # This function shows the execution time of 
@@ -15,7 +16,7 @@ def timer_func(func):
         t1 = time()
         result = func(*args, **kwargs)
         t2 = time()
-        print(f'Function {func.__name__!r} executed in {(t2-t1):.4f}s')
+        #print(f'Function {func.__name__!r} executed in {(t2-t1):.4f}s')
         return result
     return wrap_func
 
