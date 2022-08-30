@@ -28,8 +28,10 @@ const Hex = Honeycomb.extendHex({
 })
 
 
-map = {}
-text_labels = {}
+let hexagon_map = {}
+let hex_map = {}
+let text_labels = {}
+let player_pov = 1
 
 
 function create_empty_map() {
@@ -47,15 +49,18 @@ function create_empty_map() {
                 let hexagon = DRAW_HEX_GROUP.use(hexSymbol).translate(x, y)
                 hexagon.fill('none')
 
-                map[[q, r, s]] = hexagon
+                hexagon_map[[q, r, s]] = hexagon
             }
         }
     }
     DRAW.viewbox(DRAW_HEX_GROUP.bbox())
 }
 
-function edit_hex(hex) {
+function edit_hexagon(hex) {
 
+    const q = hex.q
+    const r = hex.r
+    const s = hex.s
     const point_type = hex.point_type
     const owner_ID = hex.owner_ID
     const current_value = hex.current_value
@@ -95,7 +100,29 @@ function edit_hex(hex) {
         color = 'purple'
     }
 
-    const hexagon = map[[hex.q, hex.r, hex.s]]
+    if (player_pov) {
+        if (
+            owner_ID !== player_pov &&
+            !(
+                hex_map[[q + 1, r - 1, s]]?.owner_ID === player_pov ||
+                hex_map[[q - 1, r + 1, s]]?.owner_ID === player_pov ||
+                hex_map[[q + 1, r, s - 1]]?.owner_ID === player_pov ||
+                hex_map[[q - 1, r, s + 1]]?.owner_ID === player_pov ||
+                hex_map[[q, r + 1, s - 1]]?.owner_ID === player_pov ||
+                hex_map[[q, r - 1, s + 1]]?.owner_ID === player_pov
+            )
+        ) {
+            text = undefined
+            if (point_type === POINT_TYPES.GRASS || point_type === POINT_TYPES.FLAG) {
+                color = 'grey'
+            } else {
+                color = 'purple'
+            }
+        }
+    }
+
+
+    const hexagon = hexagon_map[[hex.q, hex.r, hex.s]]
 
     hexagon.fill(color)
 
@@ -118,9 +145,10 @@ async function get_history() {
     return await fetch('/history.json').then(r => r.json())
 }
 
+
 function add_info_to_map(data) {
     // let data = JSON.parse(json_dump)
-
+    let to_edit_hex = []
     for (const p of data) {
         const [q, r, s] = p[0]
         const point_type = p[1]
@@ -129,7 +157,12 @@ function add_info_to_map(data) {
 
         const hex = Hex({ q, r, s, point_type, owner_ID, current_value })
 
-        edit_hex(hex)
+        hex_map[[q, r, s]] = hex
+        to_edit_hex.push(hex)
+    }
+
+    for (const hex of Object.values(hex_map)) {
+        edit_hexagon(hex)
     }
 }
 
@@ -142,24 +175,52 @@ DRAW.panZoom({
     zoomMax: 10,
 })
 
-
-async function run_simulation() {
-
-    tick = 0
-    let map_history = await get_history()
-    add_info_to_map(map_history[tick])
-
-    function next_tick() {
-        tick++
-        add_info_to_map(map_history[tick])
-    }
-
-    while (tick < map_history.length - 1) {
-        await new Promise(r => setTimeout(() => r(), 500))
-        next_tick()
-        console.log(`tick ${tick}`)
+function enable_buttons() {
+    for (const button of document.getElementsByTagName('button')) {
+        button.disabled = false
     }
 }
 
+async function start() {
 
-run_simulation()
+    // load data and draw tick 0
+    let map_history = await get_history()
+    add_info_to_map(map_history[0])
+    tick = 1
+
+
+    function next_tick() {
+        console.log(`tick ${tick}`)
+        add_info_to_map(map_history[tick])
+        tick++
+    }
+
+    document.getElementById('tick').addEventListener('click', e => {
+        next_tick()
+    })
+
+    let intervalid = undefined
+
+    document.getElementById('start').addEventListener('click', e => {
+        if (intervalid === undefined) {
+            intervalid = setInterval(() => {
+                if (tick >= map_history.length) {
+                    clearInterval(intervalid)
+                } else {
+                    next_tick()
+                }
+            }, 500)
+        }
+    })
+
+    document.getElementById('stop').addEventListener('click', e => {
+        if (intervalid !== undefined) {
+            clearInterval(intervalid)
+            intervalid = undefined
+        }
+    })
+
+    enable_buttons()
+}
+
+start()
