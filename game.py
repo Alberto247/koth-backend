@@ -177,7 +177,7 @@ class Game:
             self.map[(q, r, s)].set_current_value(number)
             n_forts+=1
         
-
+        self.history.append(self.map.serializable())
 
         
 
