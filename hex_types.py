@@ -1,6 +1,7 @@
 from enum import Enum
 
-class HEX_Type(Enum):
+
+class HEX_Type(int, Enum):
     UNKNOWN_OBJECT = -2
     UNKNOWN_EMPTY = -1
     GRASS = 0
@@ -11,4 +12,4 @@ class HEX_Type(Enum):
     REV_CRYSTAL = 5
     PWN_CRYSTAL = 6
     MISC_CRYSTAL = 7
-    FLAG=100
+    FLAG = 100

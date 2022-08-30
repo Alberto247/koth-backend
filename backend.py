@@ -43,7 +43,7 @@ for x in range(PLAYERS):
 filenames = []
 print("Starting simulation")
 
-start=time.time()
+start = time.time()
 for i in range(SIMULATION_LENGTH):
     plot(game.get_map(), f"global/{i}.png")
     filenames.append(f"global/{i}.png")
@@ -66,3 +66,4 @@ for x in range(PLAYERS):
  """
 
 
+game.json_serialize_history('frontend/history.json')
