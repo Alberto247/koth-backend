@@ -298,6 +298,12 @@ async function start() {
         stop_ticking()
     })
 
+    document.getElementById('restart').addEventListener('click', e => {
+        stop_ticking()
+        tick = -1
+        next_tick()
+    })
+
     const pov_select = document.getElementById('pov')
 
     for (let i = 0; i < 16; i++) {
