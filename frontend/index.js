@@ -1,8 +1,9 @@
 const SIDE = 50
 
-const DRAW = SVG().addTo('body').size('100%', '100%')
-const DRAW_HEX_GROUP = DRAW.group()
-const TEXT_GROUP = DRAW.group()
+let DRAW // = SVG().addTo('body').size('100%', '100%')
+let DRAW_HEX_GROUP // = DRAW.group()
+let TEXT_GROUP // = DRAW.group()
+// let HIDE_HEXAGON_GROUP // = DRAW.group()
 
 const PLAYER_COLORS = { null: "none", 0: "#008000", 1: "#0000FF", 2: "#FF0000", 3: "#00FFFF", 4: "#FF00FF", 5: "#FFFF00", 6: "salmon", 7: "darkorange", 8: "lime", 9: "violet", 10: "pink", 11: "grey", 12: "royalblue", 13: "palegreen", 14: "peru", 15: "orangered" }
 const POINT_TYPES = {
@@ -29,12 +30,18 @@ const Hex = Honeycomb.extendHex({
 
 
 let hexagon_map = {}
+// let hide_hexagon_map = {}
 let hex_map = {}
 let text_labels = {}
-let player_pov = 0
-
+let player_pov = undefined
+let tick_timeout = 500
 
 function create_empty_map() {
+    DRAW = SVG().addTo('body').size('100%', '100%')
+    DRAW_HEX_GROUP = DRAW.group()
+    TEXT_GROUP = DRAW.group()
+    // HIDE_HEXAGON_GROUP = DRAW.group()
+
     const corners = Hex().corners()
     const hexSymbol = DRAW.symbol()
         .polygon(corners.map(({ x, y }) => `${x},${y}`))
@@ -50,13 +57,50 @@ function create_empty_map() {
                 hexagon.fill('none')
 
                 hexagon_map[[q, r, s]] = hexagon
+
+                const { cx, cy } = hexagon.rbox()
+                const p = DRAW.point(cx, cy)
+                let t = TEXT_GROUP.text('').font({ size: 40 }).center(p.x, p.y)
+                text_labels[[q, r, s]] = t
+
+                // let hide_hexagon = HIDE_HEXAGON_GROUP.use(hexSymbol).translate(x, y).fill('red').hide()
+                // hide_hexagon_map[[q, r, s]] = hide_hexagon
             }
         }
     }
     DRAW.viewbox(DRAW_HEX_GROUP.bbox())
 }
 
-function edit_hexagon(hex) {
+async function load_empty_map() {
+    const svg = await fetch('/empty_map.svg').then(r => r.text())
+    DRAW = SVG(svg).addTo('body').size('100%', '100%')
+    DRAW_HEX_GROUP = DRAW.children()[0]
+    TEXT_GROUP = DRAW.children()[1]
+    // HIDE_HEXAGON_GROUP = DRAW.children()[2]
+
+    const all_empty_hexagons = DRAW_HEX_GROUP.children()
+    const all_empty_labels = TEXT_GROUP.children()
+    // const all_hide_hexagons = HIDE_HEXAGON_GROUP.children()
+
+    for (let q = -SIDE; q <= SIDE; q++) {
+        for (let r = -SIDE; r <= SIDE; r++) {
+            const s = -(q + r)
+            if (-SIDE <= s && s <= SIDE) {
+                let hexagon = all_empty_hexagons.shift()
+                hexagon_map[[q, r, s]] = hexagon
+
+                let label = all_empty_labels.shift()
+                text_labels[[q, r, s]] = label
+
+                // let hide_hexagon = all_hide_hexagons.shift()
+                // hide_hexagon_map[[q, r, s]] = hide_hexagon
+            }
+        }
+    }
+    DRAW.viewbox(DRAW_HEX_GROUP.bbox())
+}
+
+async function edit_hexagon(hex) {
 
     const q = hex.q
     const r = hex.r
@@ -72,7 +116,9 @@ function edit_hexagon(hex) {
         text = `S ${current_value}`
         color = PLAYER_COLORS[owner_ID]
     } else if (point_type === POINT_TYPES.GRASS) {
-        text = `${current_value}`
+        if (current_value !== 0) {
+            text = `${current_value}`
+        }
         color = PLAYER_COLORS[owner_ID]
     } else if (point_type === POINT_TYPES.WALL) {
         color = 'black'
@@ -100,7 +146,8 @@ function edit_hexagon(hex) {
         color = 'purple'
     }
 
-    if (player_pov) {
+    // const hide_hexagon = hide_hexagon_map[[hex.q, hex.r, hex.s]]
+    if (player_pov !== undefined) {
         if (
             owner_ID !== player_pov &&
             !(
@@ -112,30 +159,45 @@ function edit_hexagon(hex) {
                 hex_map[[q, r - 1, s + 1]]?.owner_ID === player_pov
             )
         ) {
+            // hide_hexagon.show()
             text = undefined
             if (point_type === POINT_TYPES.GRASS || point_type === POINT_TYPES.FLAG) {
                 color = 'grey'
             } else {
                 color = 'purple'
             }
+        } else {
+            // hide_hexagon.hide()
         }
+    } else {
+        // hide_hexagon.hide()
     }
 
 
     const hexagon = hexagon_map[[hex.q, hex.r, hex.s]]
 
-    hexagon.fill(color)
+    if (hexagon.fill() !== color) {
+        hexagon.fill(color)
+    }
+
 
     if (text) {
         const label = text_labels[[hex.q, hex.r, hex.s]]
+        const { cx, cy } = hexagon.rbox()
+        const p = DRAW.point(cx, cy)
         if (label) {
-            label.text(text)
+            label.show()
+            if (label.text() !== text) {
+                label.text(text).center(p.x, p.y)
+            }
         } else {
-            const { cx, cy } = hexagon.rbox()
-            const p = DRAW.point(cx, cy)
-            let t = TEXT_GROUP.text(text).font({ size: 40 }).center(p.x, p.y);
-
+            let t = TEXT_GROUP.text(text).font({ size: 40 }).center(p.x, p.y)
             text_labels[[hex.q, hex.r, hex.s]] = t
+        }
+    } else {
+        const label = text_labels[[hex.q, hex.r, hex.s]]
+        if (label) {
+            label.hide()
         }
     }
 }
@@ -161,19 +223,14 @@ function add_info_to_map(data) {
         to_edit_hex.push(hex)
     }
 
+    if (player_pov !== undefined) {
+
+    }
+
     for (const hex of Object.values(hex_map)) {
         edit_hexagon(hex)
     }
 }
-
-
-create_empty_map()
-
-DRAW.panZoom({
-    zoomFactor: 0.2,
-    zoomMin: 0.1,
-    zoomMax: 10,
-})
 
 function enable_buttons() {
     for (const button of document.getElementsByTagName('button')) {
@@ -183,16 +240,29 @@ function enable_buttons() {
 
 async function start() {
 
+    // create_empty_map()
+    await load_empty_map()
+
+    DRAW.panZoom({
+        zoomFactor: 0.2,
+        zoomMin: 0.1,
+        zoomMax: 10,
+    })
+
+
     // load data and draw tick 0
     let map_history = await get_history()
-    add_info_to_map(map_history[0])
-    tick = 1
+    tick = 0
+    add_info_to_map(map_history[tick])
 
 
     function next_tick() {
-        console.log(`tick ${tick}`)
-        add_info_to_map(map_history[tick])
-        tick++
+        if (tick < (map_history.length - 1)) {
+            tick++
+            add_info_to_map(map_history[tick])
+            // console.log(`tick ${tick}`)
+            document.getElementById('ticknumber').innerText = tick
+        }
     }
 
     document.getElementById('tick').addEventListener('click', e => {
@@ -201,7 +271,7 @@ async function start() {
 
     let intervalid = undefined
 
-    document.getElementById('start').addEventListener('click', e => {
+    function start_ticking() {
         if (intervalid === undefined) {
             intervalid = setInterval(() => {
                 if (tick >= map_history.length) {
@@ -209,26 +279,58 @@ async function start() {
                 } else {
                     next_tick()
                 }
-            }, 500)
+            }, tick_timeout)
         }
-    })
+    }
 
-    document.getElementById('stop').addEventListener('click', e => {
+    function stop_ticking() {
         if (intervalid !== undefined) {
             clearInterval(intervalid)
             intervalid = undefined
         }
+    }
+
+    document.getElementById('start').addEventListener('click', e => {
+        start_ticking()
     })
 
-    document.getElementById('pov').addEventListener('click', e => {
-        player_pov=parseInt(document.getElementById('player').value);
-        create_empty_map();
-        start()
+    document.getElementById('stop').addEventListener('click', e => {
+        stop_ticking()
     })
 
+    const pov_select = document.getElementById('pov')
+
+    for (let i = 0; i < 16; i++) {
+        let opt = document.createElement('option', { value: i.toString() })
+        opt.innerText = i.toString()
+        pov_select.appendChild(opt)
+    }
+
+    document.getElementById('pov').addEventListener('change', e => {
+        let s = parseInt(e.target.selectedOptions[0].value)
+        if (s === -1) {
+            s = undefined
+        }
+        player_pov = s
+        add_info_to_map(map_history[tick])
+    })
+
+    document.getElementById('speed').addEventListener('change', e => {
+        const speed = e.target.value
+        tick_timeout = Math.floor((10000 / speed))
+        console.log(tick_timeout)
+        if (intervalid !== undefined) {
+            stop_ticking()
+            start_ticking()
+        }
+    })
+
+    document.getElementById('speed').value = Math.floor(10000 / tick_timeout)
 
 
     enable_buttons()
 }
 
+
+// create_empty_map()
 start()

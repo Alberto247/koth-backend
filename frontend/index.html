@@ -12,11 +12,18 @@
     <script src="/index.js" defer></script>
 
     <div style="position: absolute;">
+        <span style="background-color: white;">&nbsp;<span id="ticknumber">0</span>&nbsp;</span>
         <button id="tick" disabled>Tick</button>
         <button id="start" disabled>Start</button>
         <button id="stop" disabled>Stop</button>
-        <input id="player">Player ID</button>
-        <button id="pov" disabled>Change player</button>
+        <select id="pov">
+            <option value="-1">All</option>
+        </select>
+
+        <span style="background-color: white;">
+            &nbsp;Speed:
+            <input type="range" min="5" max="100" value="20" id="speed">
+        </span>
     </div>
 
 </body>
