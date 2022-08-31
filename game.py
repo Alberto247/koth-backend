@@ -7,7 +7,7 @@ import random
 from math import floor
 import copy
 from debug import plot, timer_func
-
+import time
 
 class Game:
 
@@ -233,6 +233,7 @@ class Game:
     
     def generate_player_map(self, player):
         player_map=copy.deepcopy(self.map)
+        self.player_controllers[player].seen_tiles=set(player_map.hash_map.keys())
         for tile in player_map.hash_map.values():
             if(tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in tile.get_neighbors()])):
                 if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
@@ -241,6 +242,7 @@ class Game:
                     tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                 tile.set_current_value(0)
                 tile.set_owner_ID(None)
+                self.player_controllers[player].seen_tiles.remove(tile.get_position_tuple())
         for crystal in self.crystal_spots:
             if(crystal.get_point_type() in self.player_crystals[player]):
                 player_map[crystal]=copy.deepcopy(self.map[crystal])
@@ -258,6 +260,7 @@ class Game:
     def update_players_maps(self, moves):
         for player in range(PLAYERS):
             player_map=self.player_controllers[player].get_map()
+            start=time.time()
             for move in moves:
                 for tile_tuple in move:
                     map_tile=self.map[tile_tuple]
@@ -269,8 +272,10 @@ class Game:
                             player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                         player_tile.set_current_value(0)
                         player_tile.set_owner_ID(None)
+                        self.player_controllers[player].seen_tiles.discard(tile_tuple)
                     else:
                         player_map[tile_tuple]=copy.deepcopy(map_tile)
+                        self.player_controllers[player].seen_tiles.add(tile_tuple)
                     for neighbour_tile in map_tile.get_neighbors():
                         map_neighbour_tile=self.map[neighbour_tile]
                         player_tile=player_map[neighbour_tile]
@@ -281,8 +286,11 @@ class Game:
                                 player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                             player_tile.set_current_value(0)
                             player_tile.set_owner_ID(None)
+                            self.player_controllers[player].seen_tiles.discard(tile_tuple)
                         else:
                             player_map[neighbour_tile]=copy.deepcopy(map_neighbour_tile)
+                            self.player_controllers[player].seen_tiles.add(tile_tuple)
+            #print(f"Step 1: {time.time()-start}")
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
                     player_map[crystal]=copy.deepcopy(self.map[crystal])
@@ -290,7 +298,8 @@ class Game:
                         player_map[x]=copy.deepcopy(self.map[x])
                         for y in player_map[x].get_neighbors():
                             player_map[y]=copy.deepcopy(self.map[y])
-            for tile in player_map.hash_map.values():
+            for tile in self.player_controllers[player].seen_tiles:
+                tile=player_map[tile]
                 if(tile.get_owner_ID()!=None):
                     if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                         tile.set_current_value(tile.get_current_value()+1)
@@ -298,10 +307,9 @@ class Game:
                         tile.set_current_value(tile.get_current_value()+1)
             
 
-    @timer_func
     def tick(self):
         self.current_tick+=1
-        print(self.current_tick)
+        #print(self.current_tick)
         moves=[]
         edited_hex = set()
 
@@ -316,7 +324,6 @@ class Game:
         self.update_players_maps(moves)
         self.history.append(self.map.serializable_partial(edited_hex))
 
-    @timer_func
     def do_move(self, player, move): #TODO: handle crystals
         hex_start=self.map[move[0]]
         hex_end=self.map[move[1]]
@@ -345,8 +352,7 @@ class Game:
             if(hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
                 self.player_crystals[player].append(hex_end.get_point_type())
 
-    @timer_func
-    def update_map(self):
+    def update_map(self): # TODO: a bit slow (3ms), but not too slow
         edited_hex = set()
         for tile in self.map.hash_map.values():
             if(tile.get_owner_ID()!=None):

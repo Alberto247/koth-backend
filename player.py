@@ -10,6 +10,7 @@ class Player():
     def __init__(self, ID, controller):
         self.player_id = ID
         self.player_map=None
+        self.seen_tiles=set()
         spec = importlib.util.spec_from_file_location("module.name", controller)
         bot_controller = importlib.util.module_from_spec(spec)
         sys.modules["module.name"] = bot_controller
