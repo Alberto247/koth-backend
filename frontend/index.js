@@ -28,6 +28,7 @@ const Hex = Honeycomb.extendHex({
     current_value: 0
 })
 
+const players = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 let hexagon_map = {}
 // let hide_hexagon_map = {}
@@ -202,15 +203,12 @@ async function edit_hexagon(hex) {
     }
 }
 
-
 async function get_history() {
     return await fetch('/history.json').then(r => r.json())
 }
 
-
 function add_info_to_map(data) {
-    // let data = JSON.parse(json_dump)
-    let to_edit_hex = []
+    // let to_edit_hex = []
     for (const p of data) {
         const [q, r, s] = p[0]
         const point_type = p[1]
@@ -220,16 +218,44 @@ function add_info_to_map(data) {
         const hex = Hex({ q, r, s, point_type, owner_ID, current_value })
 
         hex_map[[q, r, s]] = hex
-        to_edit_hex.push(hex)
-    }
-
-    if (player_pov !== undefined) {
-
+        // to_edit_hex.push(hex)
     }
 
     for (const hex of Object.values(hex_map)) {
         edit_hexagon(hex)
     }
+}
+
+function update_stats() {
+    stats = {}
+
+    for (const hex of Object.values(hex_map)) {
+        if (hex.current_value !== 0 && hex.owner_ID !== null) {
+            if (!stats[hex.owner_ID]) {
+                stats[hex.owner_ID] = {
+                    troops: hex.current_value,
+                    terr: 1
+                }
+            } else {
+                stats[hex.owner_ID].troops += hex.current_value
+                stats[hex.owner_ID].terr += 1
+            }
+        }
+    }
+
+    for (const t of players) {
+        troop_element = document.getElementById('troops-' + t)
+        terr_element = document.getElementById('terr-' + t)
+        if (stats[t] === undefined) {
+            // dead
+            troop_element.innerText = '-'
+            terr_element.innerText = '-'
+        } else {
+            troop_element.innerText = stats[t].troops
+            terr_element.innerText = stats[t].terr
+        }
+    }
+
 }
 
 function enable_buttons() {
@@ -260,6 +286,7 @@ async function start() {
         if (tick < (map_history.length - 1)) {
             tick++
             add_info_to_map(map_history[tick])
+            update_stats()
             // console.log(`tick ${tick}`)
             document.getElementById('ticknumber').innerText = tick
         }
@@ -305,11 +332,28 @@ async function start() {
     })
 
     const pov_select = document.getElementById('pov')
+    const stats_div = document.getElementById('stats')
 
-    for (let i = 0; i < 16; i++) {
-        let opt = document.createElement('option', { value: i.toString() })
-        opt.innerText = i.toString()
+    for (const t of players) {
+        // select pow
+        let opt = document.createElement('option', { value: t })
+        opt.textContent = t
         pov_select.appendChild(opt)
+
+        // initialize stats
+        let row = document.createElement('tr')
+        let el = document.createElement('td')
+        el.textContent = t
+        row.appendChild(el)
+        el = document.createElement('td')
+        el.textContent = '1'
+        el.id = 'troops-' + t
+        row.appendChild(el)
+        el = document.createElement('td')
+        el.textContent = '1'
+        el.id = 'terr-' + t
+        row.appendChild(el)
+        stats_div.appendChild(row)
     }
 
     document.getElementById('pov').addEventListener('change', e => {
