@@ -65,7 +65,7 @@ class Hex:
         self.point_type=point_type
     
     def __repr__(self):
-        return f"Hex {self.get_position_tuple()}, type: {self.get_point_type().name}"
+        return f"Hex {self.get_position_tuple()}, type: {self.get_point_type().name}, owner: {self.get_owner_ID()}"
     
     def set_point_type(self, point_type):
         self.point_type=point_type

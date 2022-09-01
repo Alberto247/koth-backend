@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
-from matplotlib.patches import RegularPolygon
+try:
+    from matplotlib.patches import RegularPolygon
+except Exception:
+    pass
 import numpy as np
 from config import *
 from Hex import Hex
@@ -90,13 +93,13 @@ def plot(map, name = None):
                             facecolor=color, alpha=0.2, edgecolor='k')
         ax.add_patch(hex)
         # Also add a text label
-        ax.text(x, y+0.2, l[0], ha='center', va='center', size=10)
+        #ax.text(x, y+0.2, l[0], ha='center', va='center', size=10)
 
     # Also add scatter points in hexagon centres
     ax.scatter(hcoord, vcoord, c=[c[0].lower() for c in colors], alpha=0.5)
 
     if name == None:
-        plt.show(block=False)
+        plt.show(block=False, dpi=1000)
     else:
         plt.savefig(name)
         plt.close()

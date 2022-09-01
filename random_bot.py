@@ -4,9 +4,10 @@ import random
 
 
 class Bot():
-    def __init__(self, ID):
-        self.player_id=ID
+    def __init__(self):
+        self.player_id=None
         self.map=None
+        self.player_name="TestPlayer"
     
     def find_my_land(self):
         if self.map == None:
@@ -31,3 +32,6 @@ class Bot():
                 return (self.map[startpos].get_position_tuple(), self.map[candidate_end].get_position_tuple())
             tries += 1
         return ((0,0,0), (0,0,0))
+    
+    def get_player_name(self):
+        return self.player_name

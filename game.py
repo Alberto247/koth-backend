@@ -256,7 +256,7 @@ class Game:
         for player in range(PLAYERS):
             self.player_controllers[player].set_map(self.generate_player_map(player))
     
-    @timer_func
+
     def update_players_maps(self, moves):
         for player in range(PLAYERS):
             player_map=self.player_controllers[player].get_map()
@@ -294,10 +294,13 @@ class Game:
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
                     player_map[crystal]=copy.deepcopy(self.map[crystal])
+                    self.player_controllers[player].seen_tiles.add(crystal)
                     for x in crystal.get_neighbors():
                         player_map[x]=copy.deepcopy(self.map[x])
+                        self.player_controllers[player].seen_tiles.add(x)
                         for y in player_map[x].get_neighbors():
                             player_map[y]=copy.deepcopy(self.map[y])
+                            self.player_controllers[player].seen_tiles.add(y)
             for tile in self.player_controllers[player].seen_tiles:
                 tile=player_map[tile]
                 if(tile.get_owner_ID()!=None):
@@ -319,12 +322,13 @@ class Game:
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
-            self.do_move(player, moves[player])
+            edited_hex |= self.do_move(player, moves[player])
         edited_hex |= self.update_map()
         self.update_players_maps(moves)
         self.history.append(self.map.serializable_partial(edited_hex))
 
     def do_move(self, player, move): #TODO: handle crystals
+        edited_hex=set()
         hex_start=self.map[move[0]]
         hex_end=self.map[move[1]]
         if(hex_start.get_owner_ID()==player and hex_start.get_current_value()>1 and hex_end.get_point_type()!=HEX_Type.WALL):
@@ -345,12 +349,20 @@ class Game:
                 else:
                     hex_end.set_current_value(hex_end.get_current_value()-amount)
                     if(hex_end.get_current_value()<0):
+                        if(hex_end.get_point_type()==HEX_Type.FLAG):
+                                print(f"Player {hex_end.get_owner_ID()} has been killed by {player} at tick {self.current_tick}!")
+                                self.player_controllers[hex_end.get_owner_ID()].dead=True
+                                new_owner=hex_end.get_owner_ID()
+                                for tile in self.player_controllers[new_owner].seen_tiles:
+                                    if(self.map[tile].get_owner_ID()==new_owner):
+                                        self.map[tile].set_owner_ID(player)
+                                        edited_hex.add(tile)
                         hex_end.set_owner_ID(player)
                         hex_end.set_current_value(abs(hex_end.get_current_value()))
-                        if(hex_end.get_point_type()==HEX_Type.FLAG):
-                            pass # TODO: Player is killed
+                        
             if(hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
                 self.player_crystals[player].append(hex_end.get_point_type())
+        return edited_hex
 
     def update_map(self): # TODO: a bit slow (3ms), but not too slow
         edited_hex = set()
