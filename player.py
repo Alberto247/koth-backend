@@ -1,16 +1,17 @@
-from debug import *
 import importlib.util
 import sys
+from config import *
 
 import websockets
 import asyncio
 import json
 import pickle
+import time
 
 # suppongo di essere sempre il tizio 0 
 # innanzitutto non supponi un cazzo te
 class TestingPlayer():
-    def __init__(self, controller):
+    def __init__(self, ID, controller):
         self.player_id = ID
         self.player_map=None
         self.seen_tiles=set()
@@ -39,23 +40,31 @@ class RemotePlayer():
         self.seen_tiles=set()
         self.dead=False
         self.websocket=None
-        self.name=asyncio.get_event_loop().run_until_complete(self.connect(uri))
-
-    async def connect(self, uri):
-        self.websocket=await websockets.connect(uri)
-        await self.websocket.send("HELO")
-        name=await self.websocket.recv()
-        print(f"Player {name} connected!")
-        return name
+        self.name=None
+        self.uri=uri
     
-    def tick(self, tick):
+
+
+    async def connect(self):
+        self.websocket=await websockets.connect(self.uri)
+        await self.websocket.send("HELO")
+        self.name=await self.websocket.recv()
+        print(f"Player {self.name} connected!")
+        
+    
+    async def tick(self, tick):
         if(self.dead):
             return ((0,0,0), (0,0,0))
-        return asyncio.get_event_loop().run_until_complete(self.send_tick({"map":self.player_map, "ID":self.player_id, "tick":tick}))
+        move=await self.send_tick({"map":self.player_map, "ID":self.player_id, "tick":tick})
+        return move
     
     async def send_tick(self, tick):
-        await self.websocket.send(pickle.dumps(tick))
+        start=time.time()
+        data=pickle.dumps(tick)
+        unpickle=time.time()
+        await self.websocket.send(data)
         move=json.loads(await self.websocket.recv()) # TODO: timeout
+        print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
         return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
 
     
@@ -66,3 +75,5 @@ class RemotePlayer():
         return self.player_map
 
 Player=RemotePlayer
+if(DEBUG):
+    Player=TestingPlayer

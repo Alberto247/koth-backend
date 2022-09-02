@@ -1,0 +1,122 @@
+version: '3.6'
+
+
+services:
+  player1:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot1
+    hostname: player1 
+  player2:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot2
+    hostname: player2 
+  player3:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot3
+    hostname: player3 
+  player4:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot4
+    hostname: player4 
+  player5:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot5
+    hostname: player5 
+  player6:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot6
+    hostname: player6 
+  player7:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot7
+    hostname: player7 
+  player8:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot8
+    hostname: player8 
+  player9:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot9
+    hostname: player9 
+  player10:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot10
+    hostname: player10 
+  player11:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot11
+    hostname: player11
+  player12:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot12
+    hostname: player12 
+  player13:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot13
+    hostname: player13 
+  player14:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot14
+    hostname: player14 
+  player15:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot15
+    hostname: player15 
+  player16:
+    build:
+      context: "."
+      dockerfile: Dockerfile.bot
+    environment:
+     - name=bot16
+    hostname: player16 
+  
+  backend:
+    build: .
+    hostname: backend
+    volumes:
+     - "./frontend:/frontend"

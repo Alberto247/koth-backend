@@ -6,8 +6,10 @@ from hex_types import *
 import random
 from math import floor
 import copy
-from debug import plot, timer_func
+import asyncio
 import time
+from player import Player
+from debug import timer_func
 
 class Game:
 
@@ -260,7 +262,6 @@ class Game:
     def update_players_maps(self, moves):
         for player in range(PLAYERS):
             player_map=self.player_controllers[player].get_map()
-            start=time.time()
             for move in moves:
                 for tile_tuple in move:
                     map_tile=self.map[tile_tuple]
@@ -309,15 +310,36 @@ class Game:
                     elif(self.current_tick%25==0):
                         tile.set_current_value(tile.get_current_value()+1)
             
+    async def async_tick(self):
+        start=time.time()
+        self.current_tick+=1
+        print(self.current_tick)
+        moves=[]
+        edited_hex = set()
+        ts=[]
+        for player in range(PLAYERS):
+            asyncio.get_event_loop()
+            ts.append(self.player_controllers[player].tick(self.current_tick))
+        moves=await asyncio.gather(*ts)
+        moves_gathered=time.time()
+        for player_move in moves:
+            edited_hex.add(player_move[0])
+            edited_hex.add(player_move[1])
+        for player in range(PLAYERS):
+            edited_hex |= self.do_move(player, moves[player])
+        edited_hex |= self.update_map()
+        self.update_players_maps(moves)
+        update_maps=time.time()
+        self.history.append(self.map.serializable_partial(edited_hex))
+        print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
 
     def tick(self):
         self.current_tick+=1
-        #print(self.current_tick)
+        print(self.current_tick)
         moves=[]
         edited_hex = set()
-
         for player in range(PLAYERS):
-            player_move=self.player_controllers[player].tick(self.current_tick)
+            player_move=self.player_controllers[player].tick(self.current_tick) # TODO: parallelize this
             moves.append(player_move)
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
@@ -326,6 +348,32 @@ class Game:
         edited_hex |= self.update_map()
         self.update_players_maps(moves)
         self.history.append(self.map.serializable_partial(edited_hex))
+
+    def run(self):
+        for x in range(PLAYERS): # Use this for local testing
+            self.add_player(Player(x, "./random_bot.py"))
+        print("Starting simulation")
+        self.generate_all_players_maps()
+
+        start=time.time()
+        for i in range(SIMULATION_LENGTH):
+            self.tick()
+        print(time.time()-start)
+        self.json_serialize_history('./frontend/history.json')
+    
+    async def run_async(self):
+        for x in range(PLAYERS): # Use this for websocket testing
+            self.add_player(Player(x, f"ws://player{x+1}:8765/"))
+        for x in range(PLAYERS):
+            await self.player_controllers[x].connect()
+        self.generate_all_players_maps()
+        print("Starting simulation")
+
+        start=time.time()
+        for i in range(SIMULATION_LENGTH):
+            await self.async_tick()
+        print(time.time()-start)
+        self.json_serialize_history('./frontend/history.json')
 
     def do_move(self, player, move): #TODO: handle crystals
         edited_hex=set()

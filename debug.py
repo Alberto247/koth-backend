@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
+
 try:
+    import matplotlib.pyplot as plt
     from matplotlib.patches import RegularPolygon
 except Exception:
     pass

@@ -1,13 +1,15 @@
-from debug import *
 import json
 import random
-
+import os
+from hex_types import HEX_Type
 
 class Bot():
     def __init__(self):
         self.player_id=None
         self.map=None
-        self.player_name="TestPlayer"
+        self.player_name=os.environ.get("name")
+        if(self.player_name==None):
+            self.player_name="UnknownBot"
     
     def find_my_land(self):
         if self.map == None:
@@ -23,7 +25,6 @@ class Bot():
         self.player_id = data["ID"]
         myland = self.find_my_land()
         assert len(myland) != 0
-        #plot(self.map, f"players/{self.player_id}/{data['tick']}.png")
         tries = 0
         while tries < 100:
             startpos = random.choice(myland)

@@ -1,0 +1,12 @@
+FROM python:3.8-alpine
+RUN apk add gcc python3-dev linux-headers musl-dev g++
+RUN python3 -m pip install websockets asyncio
+COPY bot.py /
+COPY random_bot.py /
+COPY remote_player_adapter.py /
+COPY map.py /
+COPY Hex.py /
+COPY hex_types.py /
+COPY config.py /
+COPY hex_types.py /
+ENTRYPOINT ["python3", "-u", "/remote_player_adapter.py"]
