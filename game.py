@@ -419,6 +419,7 @@ class Game:
                                     if(self.map[tile].get_owner_ID()==new_owner):
                                         self.map[tile].set_owner_ID(player)
                                         edited_hex.add(tile)
+                                hex_end.set_point_type(HEX_Type.FORT)
                         hex_end.set_owner_ID(player)
                         hex_end.set_current_value(abs(hex_end.get_current_value()))
                         
