@@ -7,4 +7,4 @@ FORT_DENSITY=0.05
 MIN_FORT_COST=40
 MAX_FORT_COST=50
 SIMULATION_LENGTH=1000
-DEBUG=True # True loads bots from their classes files, without timeout on the moves. False works with the websockets as in the infrastructure and requires docker
+DEBUG=False # True loads bots from their classes files, without timeout on the moves. False works with the websockets as in the infrastructure and requires docker

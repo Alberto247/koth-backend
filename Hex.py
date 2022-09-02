@@ -48,20 +48,15 @@ def hex_linedraw(a, b):
 
 
 class Hex:
-    def __init__(self, location, point_type=HEX_Type.GRASS):
-        
+    
+    def __init__(self, location, point_type=HEX_Type.GRASS, owner_ID=None, current_value=0):
         if location[0]+location[1]+location[2] != 0:
             raise TypeError('Invalid coordinates')
-        
-        #if abs(location[0]) > SIDE or abs(location[1]) > SIDE or abs(location[2]) > SIDE: # This is disabled as some function have intermediate Hexes outside the coordinates
-        #    print(location)
-        #    raise TypeError('Out of bound')
-
         self.q = location[0]
         self.r = location[1]
         self.s = location[2]
-        self.owner_ID=None
-        self.current_value=0
+        self.owner_ID=owner_ID
+        self.current_value=current_value
         self.point_type=point_type
     
     def __repr__(self):
@@ -120,3 +115,7 @@ class Hex:
             neighbors.remove(x)
 
         return neighbors
+
+    def serializable(self):
+        return (self.get_position_tuple(), self.get_point_type(),
+                     self.get_owner_ID(), self.get_current_value())

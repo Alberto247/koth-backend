@@ -199,9 +199,7 @@ class Game:
         for hex in mapcopy.hash_map.values():
             if hex.get_owner_ID()!=0:
                 self.map[hex.get_position_tuple()].set_point_type(HEX_Type.WALL)
-        
 
-    
     def reachability_fix(self, reachable_spots):
         mapcopy=copy.deepcopy(self.map) #TODO: maybe we can avoid copy if later on we reset all the map owning, this is not too slow however
         start=self.player_spawns[0]
@@ -260,7 +258,9 @@ class Game:
     
 
     def update_players_maps(self, moves):
+        players_edits=[]
         for player in range(PLAYERS):
+            single_player_edits=[]
             player_map=self.player_controllers[player].get_map()
             for move in moves:
                 for tile_tuple in move:
@@ -273,9 +273,11 @@ class Game:
                             player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                         player_tile.set_current_value(0)
                         player_tile.set_owner_ID(None)
+                        single_player_edits.append(player_tile.serializable())
                         self.player_controllers[player].seen_tiles.discard(tile_tuple)
                     else:
                         player_map[tile_tuple]=copy.deepcopy(map_tile)
+                        single_player_edits.append(map_tile.serializable())
                         self.player_controllers[player].seen_tiles.add(tile_tuple)
                     for neighbour_tile in map_tile.get_neighbors():
                         map_neighbour_tile=self.map[neighbour_tile]
@@ -287,20 +289,25 @@ class Game:
                                 player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                             player_tile.set_current_value(0)
                             player_tile.set_owner_ID(None)
+                            single_player_edits.append(player_tile.serializable())
                             self.player_controllers[player].seen_tiles.discard(tile_tuple)
                         else:
                             player_map[neighbour_tile]=copy.deepcopy(map_neighbour_tile)
+                            single_player_edits.append(map_neighbour_tile.serializable())
                             self.player_controllers[player].seen_tiles.add(tile_tuple)
             #print(f"Step 1: {time.time()-start}")
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
                     player_map[crystal]=copy.deepcopy(self.map[crystal])
+                    single_player_edits.append(self.map[crystal].serializable())
                     self.player_controllers[player].seen_tiles.add(crystal)
                     for x in crystal.get_neighbors():
                         player_map[x]=copy.deepcopy(self.map[x])
+                        single_player_edits.append(self.map[x].serializable())
                         self.player_controllers[player].seen_tiles.add(x)
                         for y in player_map[x].get_neighbors():
                             player_map[y]=copy.deepcopy(self.map[y])
+                            single_player_edits.append(self.map[y].serializable())
                             self.player_controllers[player].seen_tiles.add(y)
             for tile in self.player_controllers[player].seen_tiles:
                 tile=player_map[tile]
@@ -309,29 +316,34 @@ class Game:
                         tile.set_current_value(tile.get_current_value()+1)
                     elif(self.current_tick%25==0):
                         tile.set_current_value(tile.get_current_value()+1)
+            players_edits.append(single_player_edits)
+        return players_edits
             
     async def async_tick(self):
         start=time.time()
-        self.current_tick+=1
         print(self.current_tick)
         moves=[]
-        edited_hex = set()
+        edited_hex = set() # This is for the web map
         ts=[]
         for player in range(PLAYERS):
             asyncio.get_event_loop()
-            ts.append(self.player_controllers[player].tick(self.current_tick))
+            ts.append(self.player_controllers[player].tick(self.current_tick)) # Send updates to every player
         moves=await asyncio.gather(*ts)
         moves_gathered=time.time()
+        self.current_tick+=1 # Next tick
         for player_move in moves:
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
-            edited_hex |= self.do_move(player, moves[player])
-        edited_hex |= self.update_map()
-        self.update_players_maps(moves)
+            edited_hex |= self.do_move(player, moves[player]) # Do all moves
+        updates=self.update_players_maps(moves) # Update every map and return updated tiles
+        for player in range(PLAYERS):
+            if(self.player_controllers[player].dead==False): # TODO: this is not consistent in case the dead player conquered something during this tick
+                self.player_controllers[player].set_update(updates[player]) # Set update to be sent to players at next tick
+        edited_hex |= self.update_map() # Update global map count on every tile
         update_maps=time.time()
-        self.history.append(self.map.serializable_partial(edited_hex))
-        print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
+        self.history.append(self.map.serializable_partial(edited_hex)) # Add to web map history
+        #print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
 
     def tick(self):
         self.current_tick+=1
@@ -339,7 +351,7 @@ class Game:
         moves=[]
         edited_hex = set()
         for player in range(PLAYERS):
-            player_move=self.player_controllers[player].tick(self.current_tick) # TODO: parallelize this
+            player_move=self.player_controllers[player].tick(self.current_tick) 
             moves.append(player_move)
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
@@ -365,10 +377,12 @@ class Game:
         for x in range(PLAYERS): # Use this for websocket testing
             self.add_player(Player(x, f"ws://player{x+1}:8765/"))
         for x in range(PLAYERS):
-            await self.player_controllers[x].connect()
-        self.generate_all_players_maps()
+            await self.player_controllers[x].connect() # Connect to players
+        self.generate_all_players_maps() # Generate every map
+        print("Sending initial map to players")
+        for x in range(PLAYERS):
+            await self.player_controllers[x].start() # Send initial maps to players
         print("Starting simulation")
-
         start=time.time()
         for i in range(SIMULATION_LENGTH):
             await self.async_tick()

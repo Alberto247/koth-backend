@@ -3,6 +3,10 @@ import websockets
 from bot import Bot
 import pickle
 import json
+import time
+from Hex import Hex
+import copy
+from hex_types import HEX_Type
 
 class RemotePlayerAdapter():
     def __init__(self, port):
@@ -11,7 +15,20 @@ class RemotePlayerAdapter():
         print(f"Booting player {self.player.player_name} on port {port}")
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
+        self.map=None
+
+    def update_map(self, updates, tick):
+        for update in updates:
+            self.map[update[0]]=Hex(*update)
+        for tile in self.map.hash_map.values():
+            if(tile.get_owner_ID()!=None):
+                if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
+                        tile.set_current_value(tile.get_current_value()+1)
+                elif(tick%25==0):
+                    tile.set_current_value(tile.get_current_value()+1)
         
+    def set_map(self, map):
+        self.map=copy.deepcopy(map)
     
     async def handle_messages(self, websocket, path): # TODO: handle game end properly without crashing, maybe send message
         try:
@@ -19,9 +36,14 @@ class RemotePlayerAdapter():
             print(f"Connection received, message: {conn_msg}") # TODO: verify it is the server connecting or avoid connections from other players
             await websocket.send(self.player.get_player_name())
             while(True):
-                data=pickle.loads(await websocket.recv())
-                move=self.player.tick(data)
-                await websocket.send(json.dumps({"start":[move[0][0],move[0][1], move[0][2]], "end":[move[1][0],move[1][1], move[1][2]]}))
+                data=await websocket.recv()
+                data=pickle.loads(data)
+                if(data["type"]=="map"):
+                    self.set_map(data["map"]) # TODO: is this needed?
+                else:
+                    self.update_map(data["updates"], data["tick"])
+                    move=self.player.tick({"map":self.map, "ID":data["ID"], "tick":data["tick"]})
+                    await websocket.send(json.dumps({"start":[move[0][0],move[0][1], move[0][2]], "end":[move[1][0],move[1][1], move[1][2]]}))
         except websockets.exceptions.ConnectionClosedError:
             return
 

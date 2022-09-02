@@ -3,9 +3,12 @@ from Hex import Hex
 import json
 
 class Map:
-
-    def __init__(self):
+    
+    def __init__(self, data=None):
         self.hash_map={}
+        if(data!=None):
+            for x in data:
+                self.hash_map[x[0]]=Hex(x[0], x[1], x[2], x[3])
 
     def __setitem__(self, key, value):
         if(type(key) is Hex):

@@ -7,6 +7,7 @@ import asyncio
 import json
 import pickle
 import time
+from map import Map
 
 # suppongo di essere sempre il tizio 0 
 # innanzitutto non supponi un cazzo te
@@ -42,20 +43,21 @@ class RemotePlayer():
         self.websocket=None
         self.name=None
         self.uri=uri
-    
-
+        self.update=[]
 
     async def connect(self):
         self.websocket=await websockets.connect(self.uri)
         await self.websocket.send("HELO")
         self.name=await self.websocket.recv()
         print(f"Player {self.name} connected!")
-        
+    
+    async def start(self):
+        await self.websocket.send(pickle.dumps({"map":self.player_map, "ID":self.player_id, "type":"map"}))
     
     async def tick(self, tick):
         if(self.dead):
             return ((0,0,0), (0,0,0))
-        move=await self.send_tick({"map":self.player_map, "ID":self.player_id, "tick":tick})
+        move=await self.send_tick({"updates":self.update, "ID":self.player_id, "tick":tick, "type":"update"})
         return move
     
     async def send_tick(self, tick):
@@ -64,15 +66,17 @@ class RemotePlayer():
         unpickle=time.time()
         await self.websocket.send(data)
         move=json.loads(await self.websocket.recv()) # TODO: timeout
-        print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
+        #print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
         return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
 
-    
     def set_map(self, map):
         self.player_map=map
     
     def get_map(self):
         return self.player_map
+    
+    def set_update(self, update):
+        self.update=update
 
 Player=RemotePlayer
 if(DEBUG):
