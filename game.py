@@ -375,7 +375,7 @@ class Game:
 
     def run(self):
         for x in range(PLAYERS): # Use this for local testing
-            self.add_player(Player(x, "./random_bot.py"))
+            self.add_player(Player(x, "./bot.py"))
         print("Starting simulation")
         self.generate_all_players_maps()
 

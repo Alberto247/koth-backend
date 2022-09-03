@@ -1,1 +1,1 @@
-from random_bot import Bot
+from less_defensive_bot import Bot
