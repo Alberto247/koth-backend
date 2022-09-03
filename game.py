@@ -357,8 +357,8 @@ class Game:
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
             edited_hex |= self.do_move(player, moves[player])
-        edited_hex |= self.update_map()
         self.update_players_maps(moves)
+        edited_hex |= self.update_map()
         self.history.append(self.map.serializable_partial(edited_hex))
 
     def run(self):
