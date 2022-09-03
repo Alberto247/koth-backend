@@ -48,7 +48,7 @@ class Game:
 
         print("Applying some distance...")
 
-        for x in range(PLAYER_DISTANCE): # force players to have at least some distance in between one eachother TODO: This is slow but probably ok
+        for x in range(PLAYER_DISTANCE): # force players to have at least some distance in between one eachother
             compute_voronoi(self.map, self.player_spawns)
 
             self.player_spawns=relax(self.map, self.player_spawns)
@@ -143,10 +143,6 @@ class Game:
         print("Running reachability fix...")
 
         # verify everyone can reach everyone
-        '''
-         TODO: this currently does a bfs from player 0, then checks if any player is not reachable.
-               In that case it picks a random point and draws a line to the unreachable player, making sure not to destroy anything important in its path
-        '''
         reachable_spots=self.player_spawns+self.crystal_spots
 
         self.reachability_fix(reachable_spots)
@@ -202,7 +198,7 @@ class Game:
                 self.map[hex.get_position_tuple()].set_point_type(HEX_Type.WALL)
 
     def reachability_fix(self, reachable_spots):
-        mapcopy=copy.deepcopy(self.map) #TODO: maybe we can avoid copy if later on we reset all the map owning, this is not too slow however
+        mapcopy=copy.deepcopy(self.map)
         start=self.player_spawns[0]
         self.bfs(mapcopy, start) # color all map of color 0
         for x in reachable_spots:
@@ -234,7 +230,7 @@ class Game:
     
     def generate_player_map(self, player):
         player_map=copy.deepcopy(self.map)
-        self.player_controllers[player].seen_tiles=set(player_map.hash_map.keys())
+        self.player_controllers[player].seen_tiles=set(player_map.hash_map.keys()) # TODO: maybe reverse logic, add seen instead of removing unseen
         for tile in player_map.hash_map.values():
             if(tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in tile.get_neighbors()])):
                 if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
@@ -309,7 +305,7 @@ class Game:
                             player_map[y]=copy.deepcopy(self.map[y])
                             single_player_edits.append(self.map[y].serializable())
                             self.player_controllers[player].seen_tiles.add(y)
-            for tile_tuple in self.player_controllers[player].seen_tiles: #TODO: here lies a bug
+            for tile_tuple in self.player_controllers[player].seen_tiles: 
                 tile=player_map[tile_tuple]
                 if(tile.get_owner_ID()!=None):
                     if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
@@ -330,7 +326,6 @@ class Game:
         # for player in range(PLAYERS):
         #     json.dump(self.player_controllers[player].player_map.serializable(), open(f"/debug/backend/{player}/{self.current_tick}.json", 'w')) # Save map for testing
         for player in range(PLAYERS):
-            asyncio.get_event_loop()
             if(self.current_tick==0 or self.last_tick_deads): # At first tick, send whole map, or when someone died
                 ts.append(self.player_controllers[player].tick_map(self.current_tick)) # Send map to every player
             else:
@@ -344,15 +339,15 @@ class Game:
             edited_hex.add(player_move[0]) # This is for the web app
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
-            edited_hex |= self.do_move(player, moves[player]) # Do all moves
+            if(self.player_controllers[player].dead==False):
+                edited_hex |= self.do_move(player, moves[player]) # Do all moves
         updates=self.update_players_maps(moves) # Update every map and return updated tiles
         for player in range(PLAYERS):
-            if(self.player_controllers[player].dead==False): # TODO: this is not consistent in case the dead player conquered something during this tick
+            if(self.player_controllers[player].dead==False): 
                 self.player_controllers[player].set_update(updates[player]) # Set update to be sent to players at next tick
         edited_hex |= self.update_map() # Update global map count on every tile
         update_maps=time.time()
         self.history.append(self.map.serializable_partial(edited_hex)) # Add to web map history
-        
         #print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
 
     def tick(self): # This is simple to test the bot, it sends the whole map at each tick and the moves are done sequentially
@@ -390,7 +385,7 @@ class Game:
         for x in range(PLAYERS): # Use this for websocket testing
             self.add_player(Player(x, f"ws://player{x+1}:8765/"))
         for x in range(PLAYERS):
-            await self.player_controllers[x].connect() # Connect to players
+            await self.player_controllers[x].connect() # Connect to players #TODO: failsafe
         self.generate_all_players_maps() # Generate every map
         os.system("rm -r /debug/backend")
         os.system("mkdir /debug/backend")
@@ -403,7 +398,7 @@ class Game:
         print(time.time()-start)
         self.json_serialize_history('./frontend/history.json')
 
-    def do_move(self, player, move): #TODO: handle crystals
+    def do_move(self, player, move): 
         edited_hex=set()
         hex_start=self.map[move[0]]
         hex_end=self.map[move[1]]
@@ -429,20 +424,20 @@ class Game:
                                 self.last_tick_deads=True
                                 print(f"Player {hex_end.get_owner_ID()} has been killed by {player} at tick {self.current_tick}!")
                                 self.player_controllers[hex_end.get_owner_ID()].dead=True
-                                new_owner=hex_end.get_owner_ID()
-                                for tile in self.player_controllers[new_owner].seen_tiles:
-                                    if(self.map[tile].get_owner_ID()==new_owner):
+                                old_owner=hex_end.get_owner_ID()
+                                for tile in self.player_controllers[old_owner].seen_tiles:
+                                    if(self.map[tile].get_owner_ID()==old_owner):
                                         self.map[tile].set_owner_ID(player)
                                         edited_hex.add(tile)
                                 hex_end.set_point_type(HEX_Type.FORT)
                         hex_end.set_owner_ID(player)
                         hex_end.set_current_value(abs(hex_end.get_current_value()))
                         
-            if(hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
+            if(hex_end.get_owner_ID()==player and (not hex_end.get_point_type() in self.player_crystals[player]) and hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
                 self.player_crystals[player].append(hex_end.get_point_type())
         return edited_hex
 
-    def update_map(self): # TODO: a bit slow (3ms), but not too slow
+    def update_map(self): 
         edited_hex = set()
         for tile in self.map.hash_map.values():
             if(tile.get_owner_ID()!=None):

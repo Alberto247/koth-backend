@@ -33,7 +33,7 @@ class RemotePlayerAdapter():
             tile=self.map[tile_tuple]
             if(tile.get_owner_ID()!=None):
                 if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
-                        tile.set_current_value(tile.get_current_value()+1)
+                    tile.set_current_value(tile.get_current_value()+1)
                 elif(tick%25==0):
                     tile.set_current_value(tile.get_current_value()+1)
         

@@ -77,7 +77,7 @@ def relax(map, player_spawns):
         centers[x] = hex_round(centers[x].q/counts[x],
                                centers[x].r/counts[x], centers[x].s/counts[x])
 
-    for x in range(PLAYERS):  # TODO: this finds where to go to reach a specific spot, is this the best way? is it ok? is it terrible? IDK
+    for x in range(PLAYERS):  
         dist_q = player_spawns[x].q-centers[x].q
         dist_r = player_spawns[x].r-centers[x].r
         dist_s = player_spawns[x].s-centers[x].s
