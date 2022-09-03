@@ -298,9 +298,9 @@ class Game:
                             self.player_controllers[player].seen_tiles.add(tile_tuple)
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
-                    player_map[crystal]=copy.deepcopy(self.map[crystal])
-                    single_player_edits.append(self.map[crystal].serializable())
-                    self.player_controllers[player].seen_tiles.add(crystal)
+                    player_map[crystal.get_position_tuple()]=copy.deepcopy(self.map[crystal.get_position_tuple()])
+                    single_player_edits.append(self.map[crystal.get_position_tuple()].serializable())
+                    self.player_controllers[player].seen_tiles.add(crystal.get_position_tuple())
                     for x in crystal.get_neighbors():
                         player_map[x]=copy.deepcopy(self.map[x])
                         single_player_edits.append(self.map[x].serializable())
