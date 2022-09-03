@@ -260,42 +260,42 @@ class Game:
 
     def update_players_maps(self, moves):
         players_edits=[]
-        for player in range(PLAYERS):
-            single_player_edits=[]
+        for player in range(PLAYERS): # for each player, apply all moves
+            single_player_edits=[] # All tiles edited for this player, so we can send them over
             player_map=self.player_controllers[player].get_map()
             for move in moves:
-                for tile_tuple in move:
+                for tile_tuple in move: # For each start and end of move
                     map_tile=self.map[tile_tuple]
                     player_tile=player_map[tile_tuple]
-                    if(map_tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in map_tile.get_neighbors()])):
+                    if(map_tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in map_tile.get_neighbors()])): #If player does not see that move
                         if(map_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
                             player_tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
                         else:
                             player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
-                        player_tile.set_current_value(0)
+                        player_tile.set_current_value(0) # Make it empty and unknown
                         player_tile.set_owner_ID(None)
-                        single_player_edits.append(player_tile.serializable())
-                        self.player_controllers[player].seen_tiles.discard(tile_tuple)
+                        single_player_edits.append(player_tile.serializable())  # Add to the edited tiles the serialized version of the tile
+                        self.player_controllers[player].seen_tiles.discard(tile_tuple) # Remove the tuple from the seen tiles
                     else:
-                        player_map[tile_tuple]=copy.deepcopy(map_tile)
-                        single_player_edits.append(map_tile.serializable())
-                        self.player_controllers[player].seen_tiles.add(tile_tuple)
-                    for neighbour_tile in map_tile.get_neighbors():
-                        map_neighbour_tile=self.map[neighbour_tile]
-                        player_tile=player_map[neighbour_tile]
-                        if(map_neighbour_tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in map_neighbour_tile.get_neighbors()])):
+                        player_map[tile_tuple]=copy.deepcopy(map_tile) # If player sees the tile, copy it from the map
+                        single_player_edits.append(map_tile.serializable()) # add the tile from the map to the edits
+                        self.player_controllers[player].seen_tiles.add(tile_tuple) # add the tuple to the seen tiles
+                    for neighbour_tile in map_tile.get_neighbors(): # Now for each neighbour
+                        map_neighbour_tile=self.map[neighbour_tile] 
+                        player_tile=player_map[neighbour_tile] 
+                        if(map_neighbour_tile.get_owner_ID()!=player and not any([self.map[_].get_owner_ID()==player for _ in map_neighbour_tile.get_neighbors()])): # if not seen
                             if(map_neighbour_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
                                 player_tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
                             else:
                                 player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                             player_tile.set_current_value(0)
                             player_tile.set_owner_ID(None)
-                            single_player_edits.append(player_tile.serializable())
-                            self.player_controllers[player].seen_tiles.discard(tile_tuple)
+                            single_player_edits.append(player_tile.serializable()) # Add player tile to edits
+                            self.player_controllers[player].seen_tiles.discard(neighbour_tile) # remove the tuple from the seen tiles
                         else:
-                            player_map[neighbour_tile]=copy.deepcopy(map_neighbour_tile)
-                            single_player_edits.append(map_neighbour_tile.serializable())
-                            self.player_controllers[player].seen_tiles.add(tile_tuple)
+                            player_map[neighbour_tile]=copy.deepcopy(map_neighbour_tile) # copy the new tile to the player map
+                            single_player_edits.append(map_neighbour_tile.serializable()) # add tile to edits
+                            self.player_controllers[player].seen_tiles.add(neighbour_tile) # add tile tuple to seen tiles
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
                     player_map[crystal.get_position_tuple()]=copy.deepcopy(self.map[crystal.get_position_tuple()])
@@ -309,8 +309,8 @@ class Game:
                             player_map[y]=copy.deepcopy(self.map[y])
                             single_player_edits.append(self.map[y].serializable())
                             self.player_controllers[player].seen_tiles.add(y)
-            for tile in self.player_controllers[player].seen_tiles: #TODO: here lies a bug
-                tile=player_map[tile]
+            for tile_tuple in self.player_controllers[player].seen_tiles: #TODO: here lies a bug
+                tile=player_map[tile_tuple]
                 if(tile.get_owner_ID()!=None):
                     if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                         tile.set_current_value(tile.get_current_value()+1)
@@ -319,7 +319,7 @@ class Game:
             players_edits.append(single_player_edits)
         return players_edits
             
-    async def async_tick(self):
+    async def async_tick(self): # This function contains a lot of tricks to reduce the data sent, in an effort to increase performances
         start=time.time()
         print(self.current_tick)
         moves=[]
@@ -327,8 +327,8 @@ class Game:
         ts=[]
         if(self.last_tick_deads):
             self.generate_all_players_maps() # If someone died it is easier to regenerate all maps
-        for player in range(PLAYERS):
-            json.dump(self.player_controllers[player].player_map.serializable(), open(f"/debug/backend/{player}/{self.current_tick}.json", 'w')) # Save map for testing
+        # for player in range(PLAYERS):
+        #     json.dump(self.player_controllers[player].player_map.serializable(), open(f"/debug/backend/{player}/{self.current_tick}.json", 'w')) # Save map for testing
         for player in range(PLAYERS):
             asyncio.get_event_loop()
             if(self.current_tick==0 or self.last_tick_deads): # At first tick, send whole map, or when someone died
@@ -339,6 +339,7 @@ class Game:
             self.last_tick_deads=False
         moves=await asyncio.gather(*ts) # Wait for all moves
         moves_gathered=time.time()
+        self.current_tick+=1 # Next tick
         for player_move in moves:
             edited_hex.add(player_move[0]) # This is for the web app
             edited_hex.add(player_move[1])
@@ -351,10 +352,10 @@ class Game:
         edited_hex |= self.update_map() # Update global map count on every tile
         update_maps=time.time()
         self.history.append(self.map.serializable_partial(edited_hex)) # Add to web map history
-        self.current_tick+=1 # Next tick
+        
         #print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
 
-    def tick(self):
+    def tick(self): # This is simple to test the bot, it sends the whole map at each tick and the moves are done sequentially
         self.current_tick+=1
         print(self.current_tick)
         moves=[]
