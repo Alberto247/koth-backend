@@ -309,7 +309,7 @@ class Game:
                             player_map[y]=copy.deepcopy(self.map[y])
                             single_player_edits.append(self.map[y].serializable())
                             self.player_controllers[player].seen_tiles.add(y)
-            for tile in self.player_controllers[player].seen_tiles:
+            for tile in self.player_controllers[player].seen_tiles: #TODO: here lies a bug
                 tile=player_map[tile]
                 if(tile.get_owner_ID()!=None):
                     if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
