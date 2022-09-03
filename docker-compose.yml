@@ -9,6 +9,8 @@ services:
     environment:
      - name=bot1
     hostname: player1 
+    volumes:
+     - "./debug:/debug"
   player2:
     build:
       context: "."
@@ -16,6 +18,8 @@ services:
     environment:
      - name=bot2
     hostname: player2 
+    volumes:
+     - "./debug:/debug"
   player3:
     build:
       context: "."
@@ -23,6 +27,8 @@ services:
     environment:
      - name=bot3
     hostname: player3 
+    volumes:
+     - "./debug:/debug"
   player4:
     build:
       context: "."
@@ -30,6 +36,8 @@ services:
     environment:
      - name=bot4
     hostname: player4 
+    volumes:
+     - "./debug:/debug"
   player5:
     build:
       context: "."
@@ -37,6 +45,8 @@ services:
     environment:
      - name=bot5
     hostname: player5 
+    volumes:
+     - "./debug:/debug"
   player6:
     build:
       context: "."
@@ -44,6 +54,8 @@ services:
     environment:
      - name=bot6
     hostname: player6 
+    volumes:
+     - "./debug:/debug"
   player7:
     build:
       context: "."
@@ -51,6 +63,8 @@ services:
     environment:
      - name=bot7
     hostname: player7 
+    volumes:
+     - "./debug:/debug"
   player8:
     build:
       context: "."
@@ -58,6 +72,8 @@ services:
     environment:
      - name=bot8
     hostname: player8 
+    volumes:
+     - "./debug:/debug"
   player9:
     build:
       context: "."
@@ -65,6 +81,8 @@ services:
     environment:
      - name=bot9
     hostname: player9 
+    volumes:
+     - "./debug:/debug"
   player10:
     build:
       context: "."
@@ -72,6 +90,8 @@ services:
     environment:
      - name=bot10
     hostname: player10 
+    volumes:
+     - "./debug:/debug"
   player11:
     build:
       context: "."
@@ -79,6 +99,8 @@ services:
     environment:
      - name=bot11
     hostname: player11
+    volumes:
+     - "./debug:/debug"
   player12:
     build:
       context: "."
@@ -86,6 +108,8 @@ services:
     environment:
      - name=bot12
     hostname: player12 
+    volumes:
+     - "./debug:/debug"
   player13:
     build:
       context: "."
@@ -93,6 +117,8 @@ services:
     environment:
      - name=bot13
     hostname: player13 
+    volumes:
+     - "./debug:/debug"
   player14:
     build:
       context: "."
@@ -100,6 +126,8 @@ services:
     environment:
      - name=bot14
     hostname: player14 
+    volumes:
+     - "./debug:/debug"
   player15:
     build:
       context: "."
@@ -107,6 +135,8 @@ services:
     environment:
      - name=bot15
     hostname: player15 
+    volumes:
+     - "./debug:/debug"
   player16:
     build:
       context: "."
@@ -114,9 +144,12 @@ services:
     environment:
      - name=bot16
     hostname: player16 
+    volumes:
+     - "./debug:/debug"
   
   backend:
     build: .
     hostname: backend
     volumes:
      - "./frontend:/frontend"
+     - "./debug:/debug"

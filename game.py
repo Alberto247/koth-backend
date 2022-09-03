@@ -10,6 +10,8 @@ import asyncio
 import time
 from player import Player
 from debug import timer_func
+import json
+import os
 
 class Game:
 
@@ -21,8 +23,7 @@ class Game:
         self.player_crystals=[]
         self.current_tick=0
         self.history = []
-
-
+        self.last_tick_deads=False
 
         for q in range(-SIDE, SIDE+1):
             for r in range(-SIDE, SIDE+1):
@@ -295,7 +296,6 @@ class Game:
                             player_map[neighbour_tile]=copy.deepcopy(map_neighbour_tile)
                             single_player_edits.append(map_neighbour_tile.serializable())
                             self.player_controllers[player].seen_tiles.add(tile_tuple)
-            #print(f"Step 1: {time.time()-start}")
             for crystal in self.crystal_spots:
                 if(crystal.get_point_type() in self.player_crystals[player]):
                     player_map[crystal]=copy.deepcopy(self.map[crystal])
@@ -325,14 +325,22 @@ class Game:
         moves=[]
         edited_hex = set() # This is for the web map
         ts=[]
+        if(self.last_tick_deads):
+            self.generate_all_players_maps() # If someone died it is easier to regenerate all maps
+        for player in range(PLAYERS):
+            json.dump(self.player_controllers[player].player_map.serializable(), open(f"/debug/backend/{player}/{self.current_tick}.json", 'w')) # Save map for testing
         for player in range(PLAYERS):
             asyncio.get_event_loop()
-            ts.append(self.player_controllers[player].tick(self.current_tick)) # Send updates to every player
-        moves=await asyncio.gather(*ts)
+            if(self.current_tick==0 or self.last_tick_deads): # At first tick, send whole map, or when someone died
+                ts.append(self.player_controllers[player].tick_map(self.current_tick)) # Send map to every player
+            else:
+                ts.append(self.player_controllers[player].tick(self.current_tick)) # Send updates to every player
+        if(self.last_tick_deads):
+            self.last_tick_deads=False
+        moves=await asyncio.gather(*ts) # Wait for all moves
         moves_gathered=time.time()
-        self.current_tick+=1 # Next tick
         for player_move in moves:
-            edited_hex.add(player_move[0])
+            edited_hex.add(player_move[0]) # This is for the web app
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
             edited_hex |= self.do_move(player, moves[player]) # Do all moves
@@ -343,6 +351,7 @@ class Game:
         edited_hex |= self.update_map() # Update global map count on every tile
         update_maps=time.time()
         self.history.append(self.map.serializable_partial(edited_hex)) # Add to web map history
+        self.current_tick+=1 # Next tick
         #print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
 
     def tick(self):
@@ -350,6 +359,9 @@ class Game:
         print(self.current_tick)
         moves=[]
         edited_hex = set()
+        if(self.last_tick_deads):
+            self.last_tick_deads=False
+            self.generate_all_players_maps()
         for player in range(PLAYERS):
             player_move=self.player_controllers[player].tick(self.current_tick) 
             moves.append(player_move)
@@ -357,8 +369,8 @@ class Game:
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
             edited_hex |= self.do_move(player, moves[player])
-        edited_hex |= self.update_map()
         self.update_players_maps(moves)
+        edited_hex |= self.update_map()
         self.history.append(self.map.serializable_partial(edited_hex))
 
     def run(self):
@@ -379,9 +391,10 @@ class Game:
         for x in range(PLAYERS):
             await self.player_controllers[x].connect() # Connect to players
         self.generate_all_players_maps() # Generate every map
-        print("Sending initial map to players")
+        os.system("rm -r /debug/backend")
+        os.system("mkdir /debug/backend")
         for x in range(PLAYERS):
-            await self.player_controllers[x].start() # Send initial maps to players
+            os.system(f"mkdir /debug/backend/{x}")
         print("Starting simulation")
         start=time.time()
         for i in range(SIMULATION_LENGTH):
@@ -412,6 +425,7 @@ class Game:
                     hex_end.set_current_value(hex_end.get_current_value()-amount)
                     if(hex_end.get_current_value()<0):
                         if(hex_end.get_point_type()==HEX_Type.FLAG):
+                                self.last_tick_deads=True
                                 print(f"Player {hex_end.get_owner_ID()} has been killed by {player} at tick {self.current_tick}!")
                                 self.player_controllers[hex_end.get_owner_ID()].dead=True
                                 new_owner=hex_end.get_owner_ID()
@@ -419,6 +433,7 @@ class Game:
                                     if(self.map[tile].get_owner_ID()==new_owner):
                                         self.map[tile].set_owner_ID(player)
                                         edited_hex.add(tile)
+                                hex_end.set_point_type(HEX_Type.FORT)
                         hex_end.set_owner_ID(player)
                         hex_end.set_current_value(abs(hex_end.get_current_value()))
                         

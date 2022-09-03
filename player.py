@@ -51,8 +51,11 @@ class RemotePlayer():
         self.name=await self.websocket.recv()
         print(f"Player {self.name} connected!")
     
-    async def start(self):
-        await self.websocket.send(pickle.dumps({"map":self.player_map, "ID":self.player_id, "type":"map"}))
+    async def tick_map(self, tick):
+        if(self.dead):
+            return ((0,0,0), (0,0,0))
+        move=await self.send_tick({"map":self.player_map, "ID":self.player_id, "tick":tick, "type":"map"})
+        return move
     
     async def tick(self, tick):
         if(self.dead):

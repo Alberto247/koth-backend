@@ -7,15 +7,19 @@ import time
 from Hex import Hex
 import copy
 from hex_types import HEX_Type
+import os
 
 class RemotePlayerAdapter():
     def __init__(self, port):
         start_server = websockets.serve(self.handle_messages, '0.0.0.0', port)
         self.player=Bot()
+        self.map=None
+        os.system(f"rm -rf /debug/{self.player.player_name}")
+        os.system(f"mkdir /debug/{self.player.player_name}")
         print(f"Booting player {self.player.player_name} on port {port}")
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
-        self.map=None
+
 
     def update_map(self, updates, tick):
         for update in updates:
@@ -39,11 +43,12 @@ class RemotePlayerAdapter():
                 data=await websocket.recv()
                 data=pickle.loads(data)
                 if(data["type"]=="map"):
-                    self.set_map(data["map"]) # TODO: is this needed?
+                    self.set_map(data["map"]) 
                 else:
                     self.update_map(data["updates"], data["tick"])
-                    move=self.player.tick({"map":self.map, "ID":data["ID"], "tick":data["tick"]})
-                    await websocket.send(json.dumps({"start":[move[0][0],move[0][1], move[0][2]], "end":[move[1][0],move[1][1], move[1][2]]}))
+                json.dump(self.map.serializable(), open(f"/debug/{self.player.player_name}/{data['tick']}.json", 'w'))
+                move=self.player.tick({"map":self.map, "ID":data["ID"], "tick":data["tick"]})
+                await websocket.send(json.dumps({"start":[move[0][0],move[0][1], move[0][2]], "end":[move[1][0],move[1][1], move[1][2]]}))
         except websockets.exceptions.ConnectionClosedError:
             return
 
