@@ -68,9 +68,12 @@ class RemotePlayer():
         data=pickle.dumps(tick)
         unpickle=time.time()
         await self.websocket.send(data)
-        move=json.loads(await self.websocket.recv()) # TODO: timeout
-        #print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
-        return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
+        try:
+            move=json.loads(await asyncio.wait_for(self.websocket.recv()), timeout=0.1) 
+            #print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
+            return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
+        except asyncio.TimeoutError:
+            return ((0,0,0),(0,0,0))
 
     def set_map(self, map):
         self.player_map=map

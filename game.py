@@ -385,12 +385,12 @@ class Game:
         for x in range(PLAYERS): # Use this for websocket testing
             self.add_player(Player(x, f"ws://player{x+1}:8765/"))
         for x in range(PLAYERS):
-            await self.player_controllers[x].connect() # Connect to players #TODO: failsafe
+            try:
+                await asyncio.wait_for(self.player_controllers[x].connect(), timeout=5.0) # Connect to players #TODO: failsafe
+            except asyncio.TimeoutError:
+                print(f"Player {x} failed to connect!")
+                self.player_controllers[x].dead=True
         self.generate_all_players_maps() # Generate every map
-        os.system("rm -r /debug/backend")
-        os.system("mkdir /debug/backend")
-        for x in range(PLAYERS):
-            os.system(f"mkdir /debug/backend/{x}")
         print("Starting simulation")
         start=time.time()
         for i in range(SIMULATION_LENGTH):

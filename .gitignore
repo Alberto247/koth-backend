@@ -5,3 +5,4 @@ global/*
 frontend/node_modules
 frontend/history.json
 debug/*
+deploy/auth/*

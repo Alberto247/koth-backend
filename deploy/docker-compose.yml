@@ -1,0 +1,153 @@
+version: "3.3"
+
+services:
+    registry_team1:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team1:/auth
+        hostname: registry_team1
+    registry_team2:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team2:/auth
+        hostname: registry_team2
+    registry_team3:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team3:/auth
+        hostname: registry_team3
+    registry_team4:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team4:/auth
+        hostname: registry_team4
+    registry_team5:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team5:/auth
+        hostname: registry_team5
+    registry_team6:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team6:/auth
+        hostname: registry_team6
+    registry_team7:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team7:/auth
+        hostname: registry_team7
+    registry_team8:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team8:/auth
+        hostname: registry_team8
+    registry_team9:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team9:/auth
+        hostname: registry_team9
+    registry_team10:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team10:/auth
+        hostname: registry_team10
+    registry_team11:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team11:/auth
+        hostname: registry_team11
+    registry_team12:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team12:/auth
+        hostname: registry_team12
+    registry_team13:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team13:/auth
+        hostname: registry_team13
+    registry_team14:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team14:/auth
+        hostname: registry_team14
+    registry_team15:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team15:/auth
+        hostname: registry_team15
+    registry_team16:
+        image: "registry:latest"
+        environment:
+          REGISTRY_AUTH: htpasswd
+          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+        volumes:
+          - ./auth/team16:/auth
+        hostname: registry_team16
+    nginx:
+        image: nginx:alpine
+        volumes:
+          - ./nginx.conf:/etc/nginx/nginx.conf
+        ports:
+          - "7394:80"
