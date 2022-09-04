@@ -15,8 +15,6 @@ class RemotePlayerAdapter():
         self.player=Bot()
         self.map=None
         self.seen_tiles=set()
-        os.system(f"rm -rf /debug/{self.player.player_name}")
-        os.system(f"mkdir /debug/{self.player.player_name}")
         print(f"Booting player {self.player.player_name} on port {port}")
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()

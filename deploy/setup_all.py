@@ -4,7 +4,6 @@ import string
 import docker
 import time
 import json
-from docker_registry_client import DockerRegistryClient
 
 os.system("rm auth/*/*")
 os.system("mkdir auth")
@@ -26,8 +25,7 @@ for x in range(1, 17):
     os.system(f"docker login https://team{x}.registry.alberto247.xyz:7394 -u team{x} -p {passwords[x-1]}")
     os.system(f"docker push team{x}.registry.alberto247.xyz:7394/bot/bot:latest")
 
+client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest")
 
-    
 
-
-print(passwords)
+json.dump(passwords, open("passwords.json", 'w'))

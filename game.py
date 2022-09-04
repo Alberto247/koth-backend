@@ -381,15 +381,15 @@ class Game:
             self.tick()
         print(time.time()-start)
         self.json_serialize_history('./frontend/history.json')
-        self.generate_results()
+        self.generate_results("./frontend/scoreboard.json")
     
-    async def run_async(self):
+    async def run_async(self, players):
         for x in range(PLAYERS): # Use this for websocket testing
-            self.add_player(Player(x, f"ws://player{x+1}:8765/", str(x)))
+            self.add_player(Player(x, f"ws://player{players[x]}:8765/", ID_MAP[players[x]], players[x]))
         for x in range(PLAYERS):
             try:
                 await asyncio.wait_for(self.player_controllers[x].connect(), timeout=5.0) # Connect to players 
-            except asyncio.TimeoutError:
+            except Exception:
                 print(f"Player {x} failed to connect!")
                 self.player_controllers[x].dead=True
                 self.dead_order.append(x)
@@ -399,25 +399,31 @@ class Game:
         for i in range(SIMULATION_LENGTH):
             await self.async_tick()
         print(time.time()-start)
-        self.json_serialize_history('./frontend/history.json')
-        self.generate_results()
+        path=os.environ.get("HISTORY_PATH")
+        if(path==None):
+            path='./frontend/history.json'
+        self.json_serialize_history(path)
+        scoreboard=os.environ.get("SCOREBOARD_PATH")
+        if(scoreboard==None):
+            scoreboard="./frontend/scoreboard.json"
+        self.generate_results(scoreboard)
     
-    def generate_results(self):
+    def generate_results(self, path):
         scoreboard=[]
         for x in self.dead_order:
-            scoreboard.append({"ID":x, "name":self.player_controllers[x].name, "preferred_name":self.player_controllers[x].preferred_name, "land":0, "power":0})
+            scoreboard.append({"ID":x, "real_ID":self.player_controllers[x].real_ID, "name":self.player_controllers[x].name, "preferred_name":self.player_controllers[x].preferred_name, "land":0, "power":0})
         players_score={}
         for x in range(PLAYERS):
             tot_land=sum([1 if y.get_owner_ID()==x else 0 for y in self.map.hash_map.values()])
             tot_power=sum([y.get_current_value() if y.get_owner_ID()==x else 0 for y in self.map.hash_map.values()])
             players_score[x]={"land":tot_land, "power":tot_power}
         players=range(PLAYERS)
-        sorted(players, key=lambda x: (self.player_controllers[x].dead==False, players_score[x]["power"], players_score[x]["land"]))
+        players=sorted(players, key=lambda x: (self.player_controllers[x].dead==False, players_score[x]["power"], players_score[x]["land"]))
         for player in players:
             if(self.player_controllers[player].dead==False):
-                scoreboard.append({"ID":player, "name":self.player_controllers[player].name, "preferred_name":self.player_controllers[player].preferred_name, "land":players_score[player]["land"], "power":players_score[player]["power"]})
+                scoreboard.append({"ID":player, "real_ID":self.player_controllers[player].real_ID, "name":self.player_controllers[player].name, "preferred_name":self.player_controllers[player].preferred_name, "land":players_score[player]["land"], "power":players_score[player]["power"]})
         scoreboard=scoreboard[::-1]
-        json.dump(scoreboard, open("./frontend/scoreboard.json", 'w'))
+        json.dump(scoreboard, open(path, 'w'))
 
 
 

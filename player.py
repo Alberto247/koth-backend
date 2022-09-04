@@ -18,6 +18,7 @@ class TestingPlayer():
         self.seen_tiles=set()
         self.dead=False
         self.name=str(ID)
+        self.real_ID=ID
         self.preferred_name=self.name
         spec = importlib.util.spec_from_file_location("module.name", controller)
         bot_controller = importlib.util.module_from_spec(spec)
@@ -37,7 +38,7 @@ class TestingPlayer():
         return self.player_map
 
 class RemotePlayer():
-    def __init__(self, ID, uri, name):
+    def __init__(self, ID, uri, name, real_ID):
         self.player_id = ID
         self.player_map=None
         self.seen_tiles=set()
@@ -47,8 +48,10 @@ class RemotePlayer():
         self.uri=uri
         self.update=[]
         self.preferred_name=name
+        self.real_ID=real_ID
 
     async def connect(self):
+        print(f"Connecting to {self.uri}")
         self.websocket=await websockets.connect(self.uri)
         await self.websocket.send("HELO")
         self.preferred_name=await self.websocket.recv()
