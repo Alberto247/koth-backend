@@ -24,6 +24,7 @@ class Game:
         self.current_tick=0
         self.history = []
         self.last_tick_deads=False
+        self.dead_order = []
 
         for q in range(-SIDE, SIDE+1):
             for r in range(-SIDE, SIDE+1):
@@ -380,16 +381,18 @@ class Game:
             self.tick()
         print(time.time()-start)
         self.json_serialize_history('./frontend/history.json')
+        self.generate_results()
     
     async def run_async(self):
         for x in range(PLAYERS): # Use this for websocket testing
-            self.add_player(Player(x, f"ws://player{x+1}:8765/"))
+            self.add_player(Player(x, f"ws://player{x+1}:8765/", str(x)))
         for x in range(PLAYERS):
             try:
-                await asyncio.wait_for(self.player_controllers[x].connect(), timeout=5.0) # Connect to players #TODO: failsafe
+                await asyncio.wait_for(self.player_controllers[x].connect(), timeout=5.0) # Connect to players 
             except asyncio.TimeoutError:
                 print(f"Player {x} failed to connect!")
                 self.player_controllers[x].dead=True
+                self.dead_order.append(x)
         self.generate_all_players_maps() # Generate every map
         print("Starting simulation")
         start=time.time()
@@ -397,6 +400,26 @@ class Game:
             await self.async_tick()
         print(time.time()-start)
         self.json_serialize_history('./frontend/history.json')
+        self.generate_results()
+    
+    def generate_results(self):
+        scoreboard=[]
+        for x in self.dead_order:
+            scoreboard.append({"ID":x, "name":self.player_controllers[x].name, "preferred_name":self.player_controllers[x].preferred_name, "land":0, "power":0})
+        players_score={}
+        for x in range(PLAYERS):
+            tot_land=sum([1 if y.get_owner_ID()==x else 0 for y in self.map.hash_map.values()])
+            tot_power=sum([y.get_current_value() if y.get_owner_ID()==x else 0 for y in self.map.hash_map.values()])
+            players_score[x]={"land":tot_land, "power":tot_power}
+        players=range(PLAYERS)
+        sorted(players, key=lambda x: (self.player_controllers[x].dead==False, players_score[x]["power"], players_score[x]["land"]))
+        for player in players:
+            if(self.player_controllers[player].dead==False):
+                scoreboard.append({"ID":player, "name":self.player_controllers[player].name, "preferred_name":self.player_controllers[player].preferred_name, "land":players_score[player]["land"], "power":players_score[player]["power"]})
+        scoreboard=scoreboard[::-1]
+        json.dump(scoreboard, open("./frontend/scoreboard.json", 'w'))
+
+
 
     def do_move(self, player, move): 
         edited_hex=set()
@@ -423,6 +446,7 @@ class Game:
                         if(hex_end.get_point_type()==HEX_Type.FLAG):
                                 self.last_tick_deads=True
                                 print(f"Player {hex_end.get_owner_ID()} has been killed by {player} at tick {self.current_tick}!")
+                                self.dead_order.append(hex_end.get_owner_ID())
                                 self.player_controllers[hex_end.get_owner_ID()].dead=True
                                 old_owner=hex_end.get_owner_ID()
                                 for tile in self.player_controllers[old_owner].seen_tiles:
@@ -456,5 +480,4 @@ class Game:
         return self.player_spawns
 
     def json_serialize_history(self, filename):
-        import json
         json.dump(self.history, open(filename, 'w'))

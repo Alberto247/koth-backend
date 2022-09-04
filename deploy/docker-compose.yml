@@ -7,6 +7,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team1.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team1:/auth
         hostname: registry_team1
@@ -16,6 +17,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team2.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team2:/auth
         hostname: registry_team2
@@ -25,6 +27,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team3.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team3:/auth
         hostname: registry_team3
@@ -34,6 +37,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team4.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team4:/auth
         hostname: registry_team4
@@ -43,6 +47,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team5.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team5:/auth
         hostname: registry_team5
@@ -52,6 +57,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team6.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team6:/auth
         hostname: registry_team6
@@ -61,6 +67,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team7.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team7:/auth
         hostname: registry_team7
@@ -70,6 +77,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team8.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team8:/auth
         hostname: registry_team8
@@ -79,6 +87,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team9.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team9:/auth
         hostname: registry_team9
@@ -88,6 +97,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team10.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team10:/auth
         hostname: registry_team10
@@ -97,6 +107,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team11.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team11:/auth
         hostname: registry_team11
@@ -106,6 +117,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team12.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team12:/auth
         hostname: registry_team12
@@ -115,6 +127,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team13.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team13:/auth
         hostname: registry_team13
@@ -124,6 +137,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team14.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team14:/auth
         hostname: registry_team14
@@ -133,6 +147,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team15.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team15:/auth
         hostname: registry_team15
@@ -142,6 +157,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+          REGISTRY_HTTP_HOST: "https://team16.registry.alberto247.xyz:7394"
         volumes:
           - ./auth/team16:/auth
         hostname: registry_team16
@@ -149,5 +165,23 @@ services:
         image: nginx:alpine
         volumes:
           - ./nginx.conf:/etc/nginx/nginx.conf
+          - /etc/letsencrypt:/etc/letsencrypt
         ports:
-          - "7394:80"
+          - "7394:443"
+        depends_on:
+          - registry_team1
+          - registry_team2
+          - registry_team3
+          - registry_team4
+          - registry_team5
+          - registry_team6
+          - registry_team7
+          - registry_team8
+          - registry_team9
+          - registry_team10
+          - registry_team11
+          - registry_team12
+          - registry_team13
+          - registry_team14
+          - registry_team15
+          - registry_team16

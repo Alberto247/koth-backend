@@ -2,8 +2,7 @@ FROM python:3.8-alpine
 RUN apk add gcc python3-dev linux-headers musl-dev g++
 RUN python3 -m pip install websockets asyncio
 COPY bot.py /
-COPY random_bot.py /
-COPY less_defensive_bot.py /
+COPY random_bot.py /player_bot.py
 COPY remote_player_adapter.py /
 COPY map.py /
 COPY Hex.py /

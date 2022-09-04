@@ -1,1 +1,1 @@
-from less_defensive_bot import Bot
+from player_bot import Bot

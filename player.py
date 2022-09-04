@@ -17,6 +17,8 @@ class TestingPlayer():
         self.player_map=None
         self.seen_tiles=set()
         self.dead=False
+        self.name=str(ID)
+        self.preferred_name=self.name
         spec = importlib.util.spec_from_file_location("module.name", controller)
         bot_controller = importlib.util.module_from_spec(spec)
         sys.modules["module.name"] = bot_controller
@@ -35,21 +37,22 @@ class TestingPlayer():
         return self.player_map
 
 class RemotePlayer():
-    def __init__(self, ID, uri):
+    def __init__(self, ID, uri, name):
         self.player_id = ID
         self.player_map=None
         self.seen_tiles=set()
         self.dead=False
         self.websocket=None
-        self.name=None
+        self.name=name
         self.uri=uri
         self.update=[]
+        self.preferred_name=name
 
     async def connect(self):
         self.websocket=await websockets.connect(self.uri)
         await self.websocket.send("HELO")
-        self.name=await self.websocket.recv()
-        print(f"Player {self.name} connected!")
+        self.preferred_name=await self.websocket.recv()
+        print(f"Player {self.name} connected as {self.preferred_name}!")
     
     async def tick_map(self, tick):
         if(self.dead):
@@ -69,7 +72,7 @@ class RemotePlayer():
         unpickle=time.time()
         await self.websocket.send(data)
         try:
-            move=json.loads(await asyncio.wait_for(self.websocket.recv()), timeout=0.1) 
+            move=json.loads(await asyncio.wait_for(self.websocket.recv(), timeout=0.1)) 
             #print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
             return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
         except asyncio.TimeoutError:
