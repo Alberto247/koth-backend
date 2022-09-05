@@ -8,6 +8,10 @@ passwords=json.load(open("passwords.json", "r"))
 networks={}
 client=docker.from_env()
 client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest")
+if(not os.path.exists("./results/complete_rounds.json")):
+    f=open("./results/complete_rounds.json", "w")
+    f.write("[]")
+    f.close()
 
 def recreate_networks():
     client.networks.prune()
@@ -62,7 +66,10 @@ def handle_round(round_ID):
         f.close()
         containers["backend"].remove()
         for team in containers["players"].keys():
-            containers["players"][team].kill()
+            try:
+                containers["players"][team].kill()
+            except Exception:
+                pass
             f=open(f"./results/{round_ID}/logs/team-{team}-game-{game}.logs", "w")
             f.write(containers["players"][team].logs().decode())
             f.close()
@@ -82,7 +89,10 @@ def handle_round(round_ID):
     f.close()
     containers["backend"].remove()
     for team in containers["players"].keys():
-        containers["players"][team].kill()
+        try:
+            containers["players"][team].kill()
+        except Exception:
+            pass
         f=open(f"./results/{round_ID}/logs/team-{team}-game-final.logs", "w")
         f.write(containers["players"][team].logs().decode())
         f.close()
@@ -98,5 +108,17 @@ def handle_round(round_ID):
     f.write(json.dumps(final_scoreboard))
     f.close()
     print("Scoreboard written to file")
+    f=open(f"./results/complete_rounds.json", "r")
+    data=json.loads(f.read())
+    data.append(round_ID)
+    f.close()
+    f=open(f"./results/complete_rounds.json", "w")
+    f.write(json.dumps(data))
+    f.close()
+    f=open(f"./results/{round_ID}/available_games.json", "w")
+    f.write(json.dumps(["0", "1", "2", "3", "final"]))
+    f.close()
 
-handle_round(0)
+
+for x in range(100):
+    handle_round(x)

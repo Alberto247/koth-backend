@@ -10,9 +10,6 @@ import os
 
 game = Game()
 
-
-
-
 if(DEBUG):
     game.run()
 else:

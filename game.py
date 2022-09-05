@@ -317,15 +317,11 @@ class Game:
         return players_edits
             
     async def async_tick(self): # This function contains a lot of tricks to reduce the data sent, in an effort to increase performances
-        start=time.time()
-        print(self.current_tick)
         moves=[]
         edited_hex = set() # This is for the web map
         ts=[]
         if(self.last_tick_deads):
             self.generate_all_players_maps() # If someone died it is easier to regenerate all maps
-        # for player in range(PLAYERS):
-        #     json.dump(self.player_controllers[player].player_map.serializable(), open(f"/debug/backend/{player}/{self.current_tick}.json", 'w')) # Save map for testing
         for player in range(PLAYERS):
             if(self.current_tick==0 or self.last_tick_deads): # At first tick, send whole map, or when someone died
                 ts.append(self.player_controllers[player].tick_map(self.current_tick)) # Send map to every player
@@ -334,7 +330,6 @@ class Game:
         if(self.last_tick_deads):
             self.last_tick_deads=False
         moves=await asyncio.gather(*ts) # Wait for all moves
-        moves_gathered=time.time()
         self.current_tick+=1 # Next tick
         for player_move in moves:
             edited_hex.add(player_move[0]) # This is for the web app
@@ -347,10 +342,8 @@ class Game:
             if(self.player_controllers[player].dead==False): 
                 self.player_controllers[player].set_update(updates[player]) # Set update to be sent to players at next tick
         edited_hex |= self.update_map() # Update global map count on every tile
-        update_maps=time.time()
         self.history.append(self.map.serializable_partial(edited_hex)) # Add to web map history
-        #print(f"tick: Time to gather moves: {moves_gathered-start}, time to update maps: {update_maps-moves_gathered}, total time: {time.time()-start}")
-
+        
     def tick(self): # This is simple to test the bot, it sends the whole map at each tick and the moves are done sequentially
         self.current_tick+=1
         print(self.current_tick)
@@ -375,11 +368,10 @@ class Game:
             self.add_player(Player(x, "./bot.py"))
         print("Starting simulation")
         self.generate_all_players_maps()
-
         start=time.time()
         for i in range(SIMULATION_LENGTH):
             self.tick()
-        print(time.time()-start)
+        print(f"Simulation ended in {time.time()-start}")
         self.json_serialize_history('./frontend/history.json')
         self.generate_results("./frontend/scoreboard.json")
     
@@ -398,7 +390,7 @@ class Game:
         start=time.time()
         for i in range(SIMULATION_LENGTH):
             await self.async_tick()
-        print(time.time()-start)
+        print(f"Simulation ended in {time.time()-start}")
         path=os.environ.get("HISTORY_PATH")
         if(path==None):
             path='./frontend/history.json'
@@ -423,8 +415,12 @@ class Game:
             if(self.player_controllers[player].dead==False):
                 scoreboard.append({"ID":player, "real_ID":self.player_controllers[player].real_ID, "name":self.player_controllers[player].name, "preferred_name":self.player_controllers[player].preferred_name, "land":players_score[player]["land"], "power":players_score[player]["power"]})
         scoreboard=scoreboard[::-1]
-        json.dump(scoreboard, open(path, 'w'))
-
+        print(scoreboard)
+        f=open(path, "w")
+        scoreboard=json.dumps(scoreboard)
+        f.write(scoreboard)
+        f.close()
+        # TODO: sometime this does not write the file (file exists but it's empty, scoreboard is verified correct and full of data even in that case)
 
 
     def do_move(self, player, move): 

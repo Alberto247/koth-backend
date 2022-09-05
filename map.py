@@ -1,6 +1,6 @@
 from config import *
 from Hex import Hex
-import json
+
 
 class Map:
     

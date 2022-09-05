@@ -7,10 +7,7 @@ import asyncio
 import json
 import pickle
 import time
-from map import Map
 
-# suppongo di essere sempre il tizio 0 
-# innanzitutto non supponi un cazzo te
 class TestingPlayer():
     def __init__(self, ID, controller):
         self.player_id = ID
@@ -70,13 +67,10 @@ class RemotePlayer():
         return move
     
     async def send_tick(self, tick):
-        start=time.time()
         data=pickle.dumps(tick)
-        unpickle=time.time()
         await self.websocket.send(data)
         try:
             move=json.loads(await asyncio.wait_for(self.websocket.recv(), timeout=0.1)) 
-            #print(f"send_tick: Time to pickle {unpickle-start}, time to receive response: {time.time()-unpickle}")
             return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
         except asyncio.TimeoutError:
             return ((0,0,0),(0,0,0))

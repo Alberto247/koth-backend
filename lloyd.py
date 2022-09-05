@@ -1,8 +1,5 @@
 from Hex import *
 from config import *
-from hex_types import HEX_Type
-import copy
-from collections import defaultdict
 
 
 def compute_voronoi(map, players_positions):
@@ -19,42 +16,6 @@ def compute_voronoi(map, players_positions):
                         min_distance = tmp
                         min_distance_player = x
                 hex.set_owner_ID(min_distance_player)
-
-""" def minimum_distance(dists, sptset, map):
-    ret = 1e8
-    ret_tuple = None
-    for y in map.hash_map.keys():
-        if dists[y] < ret and not sptset[y]:
-            ret = dists[y]
-            ret_tuple = y
-    assert ret_tuple != None, b"F"
-    return ret_tuple, ret
-
-def compute_voronoi_proper_distance(map, players_positions):
-    ret = []
-
-    for player in players_positions:
-        dists = defaultdict(lambda : 1e7)
-        sptset = defaultdict(lambda : False)
-        dists[player.get_position_tuple()] = 0
-        
-        for vert in map.hash_map.keys():
-            x, _ = minimum_distance(dists, sptset, map)
-            sptset[x] = True
-            
-            neighbors = map[x].get_neighbors()
-            for yt in neighbors:
-                if not sptset[yt] and dists[yt] > dists[x] + 1 and map[yt].get_point_type() != HEX_Type.WALL:
-                    dists[yt] = dists[x] + 1
-            
-        ret.append(dists)
-    
-    for hex in map.hash_map.keys():
-        if(map[hex].get_point_type() != HEX_Type.WALL):
-            minarray=[ret[x][hex] for x in range(len(players_positions))]
-            minplayer=minarray.index(min(minarray))
-            map[hex].set_owner_ID(minplayer) """
-
 
 def relax(map, player_spawns):
     centers = {}
@@ -108,4 +69,4 @@ def relax(map, player_spawns):
                     player_spawns[x].r += 1
                     player_spawns[x].q -= 1
     return player_spawns
-    #map[(centers[x].q, centers[x].r, centers[x].s)].set_point_type(HEX_Type.WALL)
+

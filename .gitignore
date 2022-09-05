@@ -7,3 +7,4 @@ frontend/history.json
 debug/*
 deploy/auth/*
 deploy/results/*
+deploy/webbackend/node_modules

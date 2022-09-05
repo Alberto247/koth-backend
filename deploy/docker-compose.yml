@@ -161,6 +161,13 @@ services:
         volumes:
           - ./auth/team16:/auth
         hostname: registry_team16
+    
+    backend:
+        build: "./webbackend"
+        volumes: 
+          - "./results:/results"
+        hostname: "backend"
+
     nginx:
         image: nginx:alpine
         volumes:
