@@ -120,5 +120,5 @@ def handle_round(round_ID):
     f.close()
 
 
-for x in range(100):
+for x in range(9, 100):
     handle_round(x)
