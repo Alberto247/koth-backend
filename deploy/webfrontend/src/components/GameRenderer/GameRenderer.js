@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import {useRef, useState, useEffect} from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Row, Button, Collapse, Card, OverlayTrigger, Popover } from "react-bootstrap";
 import Form from 'react-bootstrap/Form'
 
@@ -22,12 +22,13 @@ const POINT_TYPES = {
 
 
 
-const PLAYER_COLORS = { null: "none", 1: "#008000", 2: "#0000FF", 3: "#FF0000", 4: "#00FFFF", 5: "#FF00FF", 6: "#FFFF00", 7: "salmon", 8: "darkorange", 9: "lime", 10: "violet", 11: "pink", 12: "grey", 13: "royalblue", 14: "palegreen", 15: "peru", 16: "orangered" }
+const PLAYER_COLORS = {"-1": "white", null: "none", 1: "#008000", 2: "#0000FF", 3: "#FF0000", 4: "#00FFFF", 5: "#FF00FF", 6: "#FFFF00", 7: "salmon", 8: "darkorange", 9: "lime", 10: "violet", 11: "pink", 12: "grey", 13: "royalblue", 14: "palegreen", 15: "peru", 16: "orangered" }
 const ID_map = { 1: "team1", 2: "team2", 3: "team3", 4: "team4", 5: "team5", 6: "team6", 7: "team7", 8: "team8", 9: "team9", 10: "team10", 11: "team11", 12: "team12", 13: "team13", 14: "team14", 15: "team15", 16: "team16" }
-let colors={null:"none"}
+let colors = { null: "none" }
+let tmp_ID_map = {null:"none"}
 let hexagon_map = {}
 let tick = 0;
-let intervalid=undefined;
+let intervalid = undefined;
 
 // function edit_hexagon(hex) {
 
@@ -131,7 +132,8 @@ let intervalid=undefined;
 //     }
 // }
 
-function getTextColor(tile){
+function getTextColor(tile, pov, hex_map) {
+    const [q, r, s]=tile["tuple"]
     const point_type = tile["point_type"]
     const owner_ID = tile["owner_ID"]
     const current_value = tile["current_value"]
@@ -171,100 +173,127 @@ function getTextColor(tile){
     } else if (point_type === POINT_TYPES.UNKNOWN_OBJECT) {
         color = 'purple'
     }
+
+    if (pov != -1) {
+        if (
+            owner_ID != pov &&
+            !(
+                hex_map[[q + 1, r - 1, s].toString()]?.owner_ID == pov ||
+                hex_map[[q - 1, r + 1, s].toString()]?.owner_ID == pov ||
+                hex_map[[q + 1, r, s - 1].toString()]?.owner_ID == pov ||
+                hex_map[[q - 1, r, s + 1].toString()]?.owner_ID == pov ||
+                hex_map[[q, r + 1, s - 1].toString()]?.owner_ID == pov ||
+                hex_map[[q, r - 1, s + 1].toString()]?.owner_ID == pov
+            )
+        ) {
+            // hide_hexagon.show()
+            text = ""
+            if (point_type === POINT_TYPES.GRASS || point_type === POINT_TYPES.FLAG) {
+                color = 'grey'
+            } else {
+                color = 'purple'
+            }
+        } else {
+            // hide_hexagon.hide()
+        }
+    } else {
+        // hide_hexagon.hide()
+    }
+
+
     return [text, color]
 }
 
-function SingleHexagon(props){
-    const [text, color]=getTextColor(props.tile);
+function SingleHexagon(props) {
+    const [text, color] = getTextColor(props.tile, props.pov, props.mapStatus);
     return (
-        <Hexagon style={{fill:color}} stroke={"black"} strokeWidth={0.2} q={props.pos[0]} r={props.pos[1]} s={props.pos[2]} ><Text style={{fill:"black"}} strokeWidth={0} fontSize="0.07em" fontWeight={"-1"}>{text}</Text></Hexagon>
+        <Hexagon style={{ fill: color }} stroke={"black"} strokeWidth={0.2} q={props.pos[0]} r={props.pos[1]} s={props.pos[2]} ><Text style={{ fill: "black" }} strokeWidth={0} fontSize="0.07em" fontWeight={"-1"}>{text}</Text></Hexagon>
     )
 }
 
-function HexagonalGrid(props){
-    let hexagons=[]
+function HexagonalGrid(props) {
+    let hexagons = []
     for (const [key, value] of Object.entries(props.mapStatus)) {
-        hexagons.push(<SingleHexagon tile={value} pos={value["tuple"]} key={key}/>)
+        hexagons.push(<SingleHexagon mapStatus={props.mapStatus} pov={props.pov} tile={value} pos={value["tuple"]} key={key} />)
     }
 
     return (<div>
-        <HexGrid style={{width:"100%", height:"100%"}} viewBox="0 0 100 100">
-          {/* Grid with manually inserted hexagons */}
-          <Layout size={{ x: 2, y:2 }} flat={false} spacing={1} origin={{ x: 50, y: 35 }}>
-            {hexagons}
-          </Layout>
+        <HexGrid style={{ width: "100%", height: "100%" }} viewBox="0 0 100 100">
+            {/* Grid with manually inserted hexagons */}
+            <Layout size={{ x: 2, y: 2 }} flat={false} spacing={1} origin={{ x: 50, y: 35 }}>
+                {hexagons}
+            </Layout>
         </HexGrid>
-      </div>);
+    </div>);
 }
 
-function game_tick(edits, setMapStatus){
-    setMapStatus((oldStatus)=>{
-        for(const edit of edits){
-            oldStatus[edit[0]]["point_type"]=edit[1]
-            oldStatus[edit[0]]["owner_ID"]=edit[2]
-            oldStatus[edit[0]]["current_value"]=edit[3]
+function game_tick(edits, setMapStatus) {
+    setMapStatus((oldStatus) => {
+        for (const edit of edits) {
+            oldStatus[edit[0]]["point_type"] = edit[1]
+            oldStatus[edit[0]]["owner_ID"] = edit[2]
+            oldStatus[edit[0]]["current_value"] = edit[3]
         }
         return oldStatus
     })
 }
 
-function LiveStats(props){
-    let players={}
-    for(const hexagon of props.mapStatus){
-        if(hexagon["owner_ID"!=null]){
-            if(!(hexagon["owner_ID"] in players)){
-                players[hexagon["owner_ID"]]={"value":hexagon["current_value"], "land":1}
-            }else{
-                players[hexagon["owner_ID"]]["value"]+=hexagon["current_value"]
-                players[hexagon["owner_ID"]]["land"]+=1
+function LiveStats(props) {
+    let players = {}
+    for (const hexagon of props.mapStatus) {
+        if (hexagon["owner_ID" != null]) {
+            if (!(hexagon["owner_ID"] in players)) {
+                players[hexagon["owner_ID"]] = { "value": hexagon["current_value"], "land": 1 }
+            } else {
+                players[hexagon["owner_ID"]]["value"] += hexagon["current_value"]
+                players[hexagon["owner_ID"]]["land"] += 1
             }
         }
     }
-    let ordered_scoreboard=[]
+    let ordered_scoreboard = []
     for (const [key, value] of Object.entries(players)) {
-        
+
     }
 }
 
 
-function GameRenderer(props){
+function GameRenderer(props) {
     const navigate = useNavigate();
     const [speed, setSpeed] = useState(5);
     const [disabled, setDisabled] = useState(false);
-    const hexagons=GridGenerator.hexagon(10);
-    const [shownTick, setShownTick] = useState(0)
-    let hexagonMap={};
-    for(const hexagon of hexagons){
-        hexagonMap[[hexagon.q, hexagon.r, hexagon.s]]={"hex":hexagon}
+    const hexagons = GridGenerator.hexagon(10);
+    const [shownTick, setShownTick] = useState(0);
+    const [pov, setPov] = useState(-1);
+    let hexagonMap = {};
+    for (const hexagon of hexagons) {
+        hexagonMap[[hexagon.q, hexagon.r, hexagon.s].toString()] = { "hex": hexagon }
     }
-    for(const hexagon of props.gameHistory[0]){
-        let tile=hexagonMap[hexagon[0]]
-        tile["point_type"]=hexagon[1]
-        tile["owner_ID"]=hexagon[2]
-        tile["current_value"]=hexagon[3]
-        tile["tuple"]=hexagon[0]
-        hexagonMap[hexagon[0]]=tile
+    for (const hexagon of props.gameHistory[0]) {
+        hexagonMap[hexagon[0]]["point_type"] = hexagon[1]
+        hexagonMap[hexagon[0]]["owner_ID"] = hexagon[2]
+        hexagonMap[hexagon[0]]["current_value"] = hexagon[3]
+        hexagonMap[hexagon[0]]["tuple"] = hexagon[0]
     }
 
     const [mapStatus, setMapStatus] = useState(hexagonMap);
-    
+
 
     let player_pov = undefined
-    
 
-    useEffect(()=>{
-        if(props.gameHistory.length===0){
+
+    useEffect(() => {
+        if (props.gameHistory.length === 0) {
             navigate("/");
         }
     }, [])
-    
 
-    function start_ticking(){
-        if(intervalid==undefined){
-            const tick_timeout = Math.floor((10000 / speed))
+
+    function start_ticking(speed_tick) {
+        if (intervalid == undefined) {
+            const tick_timeout = Math.floor((10000 / speed_tick))
             intervalid = setInterval(() => {
-                console.log("ticking "+tick)
-                tick=tick+1
+                console.log("ticking " + tick)
+                tick = tick + 1
                 setShownTick(tick)
                 if (tick >= props.gameHistory.length) {
                     clearInterval(intervalid);
@@ -275,7 +304,7 @@ function GameRenderer(props){
         }
     }
 
-    function stop_ticking(event){
+    function stop_ticking(event) {
 
         if (intervalid !== undefined) {
             clearInterval(intervalid)
@@ -283,33 +312,52 @@ function GameRenderer(props){
         }
     }
 
-    function restart(event){
+    function restart(event) {
 
         stop_ticking()
-        tick=0;
+        tick = 0;
         setShownTick(tick)
         game_tick(props.gameHistory[0], setMapStatus);
     }
 
-    function btn_tick(event){
+    function btn_tick(event) {
 
-        tick=tick+1;
+        tick = tick + 1;
         setShownTick(tick)
         game_tick(props.gameHistory[tick], setMapStatus);
     }
-    
-    colors={null:"none"}
-    for(const entry of props.currentGameScoreboard){
-        colors[entry["ID"]]=PLAYER_COLORS[entry["real_ID"]];
+
+    function changeSlide(event) {
+        setSpeed(event.target.value);
+        stop_ticking();
+        start_ticking(event.target.value);
     }
 
-    const buttonRow=<div style={{height:"5%", width:"100%", alignContent:"center"}}>Current Tick: {tick} <Button disabled={disabled} onClick={(e)=>{btn_tick(e)}}>Tick</Button> <Button disabled={disabled} onClick={(e)=>{start_ticking(e)}}>Start</Button> <Button disabled={disabled} onClick={(e)=>{stop_ticking(e)}}>Stop</Button> <Button disabled={disabled} onClick={(e)=>{restart(e)}}>Restart</Button>Speed:<Form.Range style={{maxWidth:"20%", paddingTop:"15px"}} min={5} max={100} value={speed} onChange={(x)=>{setSpeed(x.target.value)}} /></div>
+    colors = { null: "none" }
+    for (const entry of props.currentGameScoreboard) {
+        colors[entry["ID"]] = PLAYER_COLORS[entry["real_ID"]];
+        tmp_ID_map[entry["ID"]]=entry["real_ID"];
+    }
+    console.log(tmp_ID_map)
+    let players = props.currentGameScoreboard.map((x) => x["ID"])
+    players.sort()
 
-    
+    const options = players.map((x) => <option value={x} style={{ backgroundColor: colors[x] }}>{ID_map[tmp_ID_map[x]]}</option>)
+    const changePov = <select style={{ backgroundColor: colors[pov] }}
+        value={pov}
+        onChange={(e) => { setPov(e.target.value) }}
+    >
+        <option value={-1} style={{ backgroundColor: "white" }}>All</option>
+        {options}
+    </select>
+
+    const buttonRow = <div style={{ height: "5%", width: "100%", alignContent: "center" }}>Current Tick: {tick} <Button disabled={disabled} onClick={(e) => { btn_tick(e) }}>Tick</Button> <Button disabled={disabled} onClick={(e) => { start_ticking(speed) }}>Start</Button> <Button disabled={disabled} onClick={(e) => { stop_ticking(e) }}>Stop</Button> <Button disabled={disabled} onClick={(e) => { restart(e) }}>Restart</Button>{changePov}Speed:<Form.Range style={{ maxWidth: "20%", paddingTop: "15px" }} min={5} max={100} value={speed} onChange={(x) => { changeSlide(x) }} /></div>
 
 
-    
-    return (<>{buttonRow}<HexagonalGrid mapStatus={mapStatus}/></>)
+
+
+
+    return (<>{buttonRow}<HexagonalGrid pov={pov} mapStatus={mapStatus} /></>)
 }
 
 

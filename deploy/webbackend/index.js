@@ -42,7 +42,7 @@ passport.deserializeUser((user, cb) => {
 
 const app = new express();
 
-var whitelist = ['http://172.24.220.247:3000', 'http://10.0.1.4:3000']
+var whitelist = ['http://172.24.210.21:3000', 'http://10.0.1.4:3000']
 app.use(cors({
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
