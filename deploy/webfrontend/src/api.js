@@ -108,6 +108,23 @@ async function apiGetGameRoundHistory(game, round){ //get exam by code
     }
 }
 
+async function apiGetGamesScoreboard(games){
+    try{
+        const data = {games:games};
+        const res = await fetch(SERVER_URL+'/games/scoreboards', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        if(!res.ok){
+            return {};
+        }
+        return await res.json();
+    } catch(exception){
+        console.error(exception);
+    }
+}
 
 export {
     apiLogin,
@@ -117,5 +134,6 @@ export {
     apiGetGameRounds,
     apiGetGameFinalScoreboard,
     apiGetGameRoundScoreboard,
-    apiGetGameRoundHistory
+    apiGetGameRoundHistory,
+    apiGetGamesScoreboard
 }

@@ -2,7 +2,8 @@ import Table from 'react-bootstrap/Table';
 import { Row, Button, Collapse, Card, OverlayTrigger, Popover } from "react-bootstrap";
 import { Play } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
-import {apiGetGameRoundHistory} from "../../api.js"
+import {apiGetGameRoundHistory, apiGetGameRoundScoreboard} from "../../api.js"
+import { HexGrid, Layout, Hexagon, Text, Pattern, Path, Hex, GridGenerator } from 'react-hexgrid';
 
 
 const ID_map = { 1: "team1", 2: "team2", 3: "team3", 4: "team4", 5: "team5", 6: "team6", 7: "team7", 8: "team8", 9: "team9", 10: "team10", 11: "team11", 12: "team12", 13: "team13", 14: "team14", 15: "team15", 16: "team16" }
@@ -56,15 +57,24 @@ function GamesTableRow(props) {
 
     async function doNavigate(game, round, scoreboard){
         props.setLoading(true);
-        const data = await apiGetGameRoundHistory(game, round)
-        props.setLoading(false);
-        props.setGameHistory(data);
-        props.setCurrentGameScoreboard(scoreboard);
-        if(data.length===0){
-            props.showError("Error loading data for game");
-        }else{
-            navigate("/play");
+        let round_scoreboard=await apiGetGameRoundScoreboard(game, round);
+        let gameHistory = await apiGetGameRoundHistory(game, round);
+        let hexagonMap = {};
+        const hexagons = GridGenerator.hexagon(10);
+        for (const hexagon of hexagons) {
+            hexagonMap[[hexagon.q, hexagon.r, hexagon.s].toString()] = { "hex": hexagon }
         }
+        for (const hexagon of gameHistory[0]) {
+            hexagonMap[hexagon[0]]["point_type"] = hexagon[1]
+            hexagonMap[hexagon[0]]["owner_ID"] = hexagon[2]
+            hexagonMap[hexagon[0]]["current_value"] = hexagon[3]
+            hexagonMap[hexagon[0]]["tuple"] = hexagon[0]
+        }
+        props.setMapStatus(hexagonMap);
+        props.setGameScoreboard(round_scoreboard);
+        props.setGameHistory(gameHistory);
+        props.setLoading(false);
+        navigate("/play/"+game+"/"+round);
     }
 
     return (
@@ -139,9 +149,8 @@ function GamesTableRow(props) {
 }
 
 function GamesTable(props) {
-    console.log(props.games)
     var list = props.games.map(  // exam list to exam component list
-        (game) => <GamesTableRow setCurrentGameScoreboard={props.setCurrentGameScoreboard} setGameHistory={props.setGameHistory} setLoading={props.setLoading} showError={props.showError} game={game} key={game["ID"]}></GamesTableRow>
+        (game) => <GamesTableRow setMapStatus={props.setMapStatus} setGameScoreboard={props.setGameScoreboard} setGameHistory={props.setGameHistory} setLoading={props.setLoading} showError={props.showError} game={game} key={game["ID"]}></GamesTableRow>
     )
     return (
         <Table striped bordered hover>
