@@ -1,9 +1,9 @@
 import Table from 'react-bootstrap/Table';
-import { Row, Button, Collapse, Card, OverlayTrigger, Popover } from "react-bootstrap";
+import { Button, OverlayTrigger } from "react-bootstrap";
 import { Play } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import {apiGetGameRoundHistory, apiGetGameRoundScoreboard} from "../../api.js"
-import { HexGrid, Layout, Hexagon, Text, Pattern, Path, Hex, GridGenerator } from 'react-hexgrid';
+import { GridGenerator } from 'react-hexgrid';
 
 
 const ID_map = { 1: "team1", 2: "team2", 3: "team3", 4: "team4", 5: "team5", 6: "team6", 7: "team7", 8: "team8", 9: "team9", 10: "team10", 11: "team11", 12: "team12", 13: "team13", 14: "team14", 15: "team15", 16: "team16" }
@@ -55,6 +55,7 @@ function GamesTableRow(props) {
     const game = props.game;
     const navigate = useNavigate();
 
+
     async function doNavigate(game, round, scoreboard){
         props.setLoading(true);
         let round_scoreboard=await apiGetGameRoundScoreboard(game, round);
@@ -75,6 +76,10 @@ function GamesTableRow(props) {
         props.setGameHistory(gameHistory);
         props.setLoading(false);
         navigate("/play/"+game+"/"+round);
+    }
+
+    async function doNavigateOutput(game, round){
+        navigate("/output/"+game+"/"+round);
     }
 
     return (
@@ -103,6 +108,7 @@ function GamesTableRow(props) {
                     <Button variant="success">See Scoreboard</Button>
                 </OverlayTrigger>
                 <Button variant="success" className={"mx-2"} onClick={() => {doNavigate(game["ID"], 0, game["rounds"][0]["scoreboard"])}}><Play></Play></Button>
+                {Object.entries(game["rounds"][0]["scoreboard"]).map((e)=>e[1]["real_ID"]).includes(props.userID)?<Button variant="success" onClick={()=>{doNavigateOutput(game["ID"], 0)}}>output</Button>:<></>}
             </td>
             <td>
                 <OverlayTrigger
@@ -113,6 +119,7 @@ function GamesTableRow(props) {
                     <Button variant="success">See Scoreboard</Button>
                 </OverlayTrigger>
                 <Button variant="success" className={"mx-2"} onClick={() => {doNavigate(game["ID"], 1, game["rounds"][1]["scoreboard"])}}><Play></Play></Button>
+                {Object.entries(game["rounds"][1]["scoreboard"]).map((e)=>e[1]["real_ID"]).includes(props.userID)?<Button variant="success" onClick={()=>{doNavigateOutput(game["ID"], 1)}}>output</Button>:<></>}
             </td>
             <td>
                 <OverlayTrigger
@@ -123,6 +130,7 @@ function GamesTableRow(props) {
                     <Button variant="success">See Scoreboard</Button>
                 </OverlayTrigger>
                 <Button variant="success" className={"mx-2"} onClick={() => {doNavigate(game["ID"], 2, game["rounds"][2]["scoreboard"])}}><Play></Play></Button>
+                {Object.entries(game["rounds"][2]["scoreboard"]).map((e)=>e[1]["real_ID"]).includes(props.userID)?<Button variant="success" onClick={()=>{doNavigateOutput(game["ID"], 2)}}>output</Button>:<></>}
             </td>
             <td>
                 <OverlayTrigger
@@ -133,6 +141,7 @@ function GamesTableRow(props) {
                     <Button variant="success">See Scoreboard</Button>
                 </OverlayTrigger>
                 <Button variant="success" className={"mx-2"} onClick={() => {doNavigate(game["ID"], 3, game["rounds"][3]["scoreboard"])}}><Play></Play></Button>
+                {Object.entries(game["rounds"][3]["scoreboard"]).map((e)=>e[1]["real_ID"]).includes(props.userID)?<Button variant="success" onClick={()=>{doNavigateOutput(game["ID"], 3)}}>output</Button>:<></>}
             </td>
             <td>
                 <OverlayTrigger
@@ -143,6 +152,7 @@ function GamesTableRow(props) {
                     <Button variant="success">See Scoreboard</Button>
                 </OverlayTrigger>
                 <Button variant="success" className={"mx-2"} onClick={() => {doNavigate(game["ID"], "final", game["rounds"][4]["scoreboard"])}}><Play></Play></Button>
+                {Object.entries(game["rounds"][4]["scoreboard"]).map((e)=>e[1]["real_ID"]).includes(props.userID)?<Button variant="success" onClick={()=>{doNavigateOutput(game["ID"], "final")}}>output</Button>:<></>}
             </td>
         </tr>
     )
@@ -150,9 +160,11 @@ function GamesTableRow(props) {
 
 function GamesTable(props) {
     var list = props.games.map(  // exam list to exam component list
-        (game) => <GamesTableRow setMapStatus={props.setMapStatus} setGameScoreboard={props.setGameScoreboard} setGameHistory={props.setGameHistory} setLoading={props.setLoading} showError={props.showError} game={game} key={game["ID"]}></GamesTableRow>
+        (game) => <GamesTableRow userID={props.userID} setMapStatus={props.setMapStatus} setGameScoreboard={props.setGameScoreboard} setGameHistory={props.setGameHistory} setLoading={props.setLoading} showError={props.showError} game={game} key={game["ID"]}></GamesTableRow>
     )
-    return (
+    const navigate = useNavigate();
+    var autoplaybtn=<Button onClick={(e)=>{navigate("/autoplay")}} style={{ position: "fixed", zIndex: "9", "bottom":50, "right": 50 }}>{"Autoplay"}</Button>
+    return (<>
         <Table striped bordered hover>
             <thead>
                 <tr>
@@ -170,6 +182,7 @@ function GamesTable(props) {
                 {list}
             </tbody>
         </Table>
+        {autoplaybtn}</>
     );
 }
 

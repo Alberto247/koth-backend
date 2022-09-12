@@ -13,6 +13,7 @@ function Topbar(props) {
     const logout = async ()=>{  //logout on click
         await apiLogout();
         props.setLoggedIn(false);
+        props.setUserID(-1);
         navigate("/");
     }
 

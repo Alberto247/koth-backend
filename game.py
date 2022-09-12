@@ -370,6 +370,8 @@ class Game:
         self.generate_all_players_maps()
         start=time.time()
         for i in range(SIMULATION_LENGTH):
+            if(len(self.dead_order)>=PLAYERS-1):
+                break
             self.tick()
         print(f"Simulation ended in {time.time()-start}")
         self.json_serialize_history('./frontend/history.json')
@@ -389,6 +391,8 @@ class Game:
         print("Starting simulation")
         start=time.time()
         for i in range(SIMULATION_LENGTH):
+            if(len(self.dead_order)>=PLAYERS-1):
+                break
             await self.async_tick()
         print(f"Simulation ended in {time.time()-start}")
         path=os.environ.get("HISTORY_PATH")
@@ -427,7 +431,7 @@ class Game:
         edited_hex=set()
         hex_start=self.map[move[0]]
         hex_end=self.map[move[1]]
-        if(hex_start.get_owner_ID()==player and hex_start.get_current_value()>1 and hex_end.get_point_type()!=HEX_Type.WALL):
+        if(hex_start.get_owner_ID()==player and hex_start.get_current_value()>1 and hex_end.get_point_type()!=HEX_Type.WALL and move[1] in hex_start.get_neighbors()):
             amount=hex_start.get_current_value()-1
             hex_start.set_current_value(1)
             if(hex_end.get_owner_ID()==None):

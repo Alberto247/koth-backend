@@ -46,7 +46,7 @@ async function apiLogout(){ //logout
     }
 }
 
-async function apiGetGames(){ //get all exams
+async function apiGetGames(){ 
     try{
         const res = await fetch(SERVER_URL+'/games')
         if(!res.ok){
@@ -58,7 +58,7 @@ async function apiGetGames(){ //get all exams
     }
 }
 
-async function apiGetGameRounds(game){ //get number of enrolled students in course
+async function apiGetGameRounds(game){ 
     try{
         const res = await fetch(SERVER_URL+'/games/'+game+'/rounds')
         if(!res.ok){
@@ -70,11 +70,9 @@ async function apiGetGameRounds(game){ //get number of enrolled students in cour
     }
 }
 
-async function apiGetGameFinalScoreboard(game){ //get user study plan
+async function apiGetGameFinalScoreboard(game){ 
     try{
-        const res = await fetch(SERVER_URL+'/games/'+game+'/scoreboard', {
-            credentials: 'include'
-        })
+        const res = await fetch(SERVER_URL+'/games/'+game+'/scoreboard')
         if(!res.ok){
             return [];
         }
@@ -84,7 +82,7 @@ async function apiGetGameFinalScoreboard(game){ //get user study plan
     }
 }
 
-async function apiGetGameRoundScoreboard(game, round){ //get exam by code
+async function apiGetGameRoundScoreboard(game, round){ 
     try{
         const res = await fetch(SERVER_URL+'/games/'+game+'/'+round+'/scoreboard')
         if(!res.ok){
@@ -96,7 +94,7 @@ async function apiGetGameRoundScoreboard(game, round){ //get exam by code
     }
 }
 
-async function apiGetGameRoundHistory(game, round){ //get exam by code
+async function apiGetGameRoundHistory(game, round){ 
     try{
         const res = await fetch(SERVER_URL+'/games/'+game+'/'+round+'/history')
         if(!res.ok){
@@ -126,6 +124,20 @@ async function apiGetGamesScoreboard(games){
     }
 }
 
+async function apiGetGameRoundOutput(game, round){ 
+    try{
+        const res = await fetch(SERVER_URL+'/games/'+game+'/'+round+'/output', {
+            credentials: 'include'
+        })
+        if(!res.ok){
+            return "";
+        }
+        return await res.text();
+    } catch(exception){
+        console.error(exception);
+    }
+}
+
 export {
     apiLogin,
     apiIsLoggedIn,
@@ -135,5 +147,6 @@ export {
     apiGetGameFinalScoreboard,
     apiGetGameRoundScoreboard,
     apiGetGameRoundHistory,
-    apiGetGamesScoreboard
+    apiGetGamesScoreboard,
+    apiGetGameRoundOutput
 }

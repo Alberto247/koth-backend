@@ -1,12 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Row, Button, Collapse, Card, OverlayTrigger, Popover } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table';
 import { FaRegFlag, FaMountain, FaFortAwesome } from 'react-icons/fa';
 import {GiCrystalGrowth}from 'react-icons/gi';
 
-import { HexGrid, Layout, Hexagon, Text, Pattern, Path, Hex, GridGenerator } from 'react-hexgrid';
+import { HexGrid, Layout, Hexagon, Text, GridGenerator } from 'react-hexgrid';
 import { apiGetGameRoundHistory, apiGetGameRoundScoreboard } from '../../api';
 
 
@@ -236,13 +236,12 @@ function LiveStats(props) {
         tmp_arr.push(value);
     }
     tmp_arr.sort(compare);
-    console.log(tmp_arr)
     for (const entry of tmp_arr) {
         ordered_scoreboard.push({ "ID": entry["ID"], "value": entry["value"], "land": entry["land"], "name": ID_map[tmp_ID_map[entry["ID"]]] })
     }
     ordered_scoreboard.reverse()
     let rows = ordered_scoreboard.map((row, i) => <tr key={props.ID + row["ID"].toString()} style={{ backgroundColor: colors[row["ID"]] }}><td>{i + 1}</td><td>{row["name"]}</td><td>{row["value"]}</td><td>{row["land"]}</td></tr>)
-
+    
     return <div style={{ position: "absolute", float: "right", zIndex: "9", "top": 100, "right": 0 }}><Table striped bordered hover>
         <thead>
             <tr style={{ backgroundColor: "grey" }}>
@@ -288,10 +287,24 @@ function GameRenderer(props) {
             props.setMapStatus(hexagonMap);
             props.setGameScoreboard(round_scoreboard);
             props.setGameHistory(gameHistory);
-            props.setLoading(false);
         }
-        loadGameData();
+        if(!props.externalLoad){
+            loadGameData();
+        }
     }, [])
+
+    useEffect(()=>{
+        if(props.autoPlay){
+            stop_ticking();
+            setDisabled(false);
+            tick = 0;
+            setShownTick(tick)
+            crystal_handled = [];
+            crystal_tiles_seens = [];
+            deaths=[];
+            start_ticking(100);
+        }
+    }, [props.gameHistory])
 
     useEffect(()=>{
         crystal_tiles_seens = {}
@@ -309,7 +322,6 @@ function GameRenderer(props) {
         if (intervalid == undefined) {
             const tick_timeout = Math.floor((10000 / speed_tick))
             intervalid = setInterval(() => {
-                console.log("ticking " + tick)
                 tick = tick + 1
                 setShownTick(tick)
                 if (tick >= props.gameHistory.length) {
@@ -369,7 +381,7 @@ function GameRenderer(props) {
     let players = props.gameScoreboard.map((x) => x["ID"])
     players.sort()
 
-    const options = players.map((x) => <option value={x} style={{ backgroundColor: colors[x] }}>{ID_map[tmp_ID_map[x]]}</option>)
+    const options = players.map((x) => <option key={"player"+x} value={x} style={{ backgroundColor: colors[x] }}>{ID_map[tmp_ID_map[x]]}</option>)
     const changePov = <select style={{ backgroundColor: colors[pov] }}
         value={pov}
         onChange={(e) => { setPov(e.target.value) }}
@@ -379,7 +391,6 @@ function GameRenderer(props) {
     </select>
 
     const buttonRow = <div style={{ height: "5%", width: "100%", alignContent: "center" }}>Current Tick: {shownTick} <Button disabled={disabled} onClick={(e) => { btn_tick(e) }}>Tick</Button> <Button disabled={disabled} onClick={(e) => { start_ticking(speed) }}>Start</Button> <Button disabled={disabled} onClick={(e) => { stop_ticking(e) }}>Stop</Button> <Button onClick={(e) => { restart(e) }}>Restart</Button>{changePov}Speed:<Form.Range style={{ maxWidth: "20%", paddingTop: "15px" }} min={5} max={100} value={speed} onChange={(x) => { changeSlide(x) }} /></div>
-
 
 
 

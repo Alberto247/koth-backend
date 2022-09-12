@@ -43,7 +43,7 @@ passport.deserializeUser((user, cb) => {
 
 const app = new express();
 
-var whitelist = ['http://172.24.217.160:3000', 'http://10.0.1.4:3000']
+var whitelist = ['http://172.24.216.211:3000', 'http://10.0.1.4:3000']
 app.use(cors({
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
@@ -56,11 +56,18 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.set('trust proxy', 1);
 app.use(session({
-    secret: 'just keep this secret',
+    cookie: {
+        sameSite: 'none', // lax or strict
+        secure: true, // Crucial
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    },
+    proxy: true, // Crucial
     resave: false,
-    saveUninitialized: false
-}))
+    saveUninitialized: true,
+    secret: 'just a secret',
+}));
 app.use(passport.authenticate('session'))
 
 const isLoggedIn = (req, res, next) => {
@@ -92,7 +99,7 @@ app.get("/logout", (req, res) => {
 
 app.get("/me", isLoggedIn, async (req, res) => {
     try {
-        res.status(200).json({ ID: req.user.id });
+        res.status(200).json({ ID: req.user.ID });
     }
     catch (err) {
         res.status(500).end();
@@ -227,8 +234,8 @@ app.get("/games/:game/:round/output", isLoggedIn, async (req, res) => {
         const id = req.user.ID
         let data;
         try {
-            data = fs.readFileSync("/results/" + game + "/logs/team-" + id + "-game-" + round + ".json")
-            res.status(200).json(JSON.parse(data))
+            data = fs.readFileSync("/results/" + game + "/logs/team-" + id + "-game-" + round + ".logs")
+            res.status(200).json(data.toString('base64'))
         } catch (err) {
             res.status(404).json({ "error": "game does not exists" })
         }
