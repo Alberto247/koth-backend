@@ -84,8 +84,10 @@ function getTextColor(tile, pov, hex_map) {
         icon = <GiCrystalGrowth style={{ fill: 'brown' }} x="-0.5em" y="-1em" fontSize="0.1em"/>
     } else if (point_type === POINT_TYPES.UNKNOWN_EMPTY) {
         color = 'grey'
+        icon = null
     } else if (point_type === POINT_TYPES.UNKNOWN_OBJECT) {
         color = 'purple'
+        icon = null
     }
 
     if ([POINT_TYPES.CRYPTO_CRYSTAL, POINT_TYPES.WEB_CRYSTAL, POINT_TYPES.REV_CRYSTAL, POINT_TYPES.PWN_CRYSTAL, POINT_TYPES.MISC_CRYSTAL].includes(point_type) && owner_ID != null) {
@@ -152,8 +154,10 @@ function getTextColor(tile, pov, hex_map) {
             text = ""
             if (point_type === POINT_TYPES.GRASS || point_type === POINT_TYPES.FLAG) {
                 color = 'grey'
+                icon = null
             } else {
                 color = 'purple'
+                icon = null
             }
         } else {
             // hide_hexagon.hide()
@@ -267,6 +271,13 @@ function GameRenderer(props) {
     const [shownTick, setShownTick] = useState(0);
     const [pov, setPov] = useState(-1);
 
+    window.onpopstate = () => {
+        setShownTick(0);
+        clearInterval(intervalid);
+        tick=0;
+        intervalid=undefined;
+    }
+
     useEffect(() => {
         async function loadGameData(){
             let round_scoreboard=await apiGetGameRoundScoreboard(game, round);
@@ -293,30 +304,6 @@ function GameRenderer(props) {
         }
     }, [])
 
-    useEffect(()=>{
-        if(props.autoPlay){
-            stop_ticking();
-            setDisabled(false);
-            tick = 0;
-            setShownTick(tick)
-            crystal_handled = [];
-            crystal_tiles_seens = [];
-            deaths=[];
-            start_ticking(100);
-        }
-    }, [props.gameHistory])
-
-    useEffect(()=>{
-        crystal_tiles_seens = {}
-        crystal_handled = {}
-        deaths = []
-        if(intervalid!=undefined){
-            clearInterval(intervalid);
-        }
-        intervalid = undefined;
-        tick=0;
-    }, [props.GameHistory])
-
 
     function start_ticking(speed_tick) {
         if (intervalid == undefined) {
@@ -326,6 +313,7 @@ function GameRenderer(props) {
                 setShownTick(tick)
                 if (tick >= props.gameHistory.length) {
                     clearInterval(intervalid);
+                    intervalid=undefined;
                     setDisabled(true);
                 } else {
                     game_tick(props.gameHistory[tick], props.setMapStatus);
@@ -391,7 +379,6 @@ function GameRenderer(props) {
     </select>
 
     const buttonRow = <div style={{ height: "5%", width: "100%", alignContent: "center" }}>Current Tick: {shownTick} <Button disabled={disabled} onClick={(e) => { btn_tick(e) }}>Tick</Button> <Button disabled={disabled} onClick={(e) => { start_ticking(speed) }}>Start</Button> <Button disabled={disabled} onClick={(e) => { stop_ticking(e) }}>Stop</Button> <Button onClick={(e) => { restart(e) }}>Restart</Button>{changePov}Speed:<Form.Range style={{ maxWidth: "20%", paddingTop: "15px" }} min={5} max={100} value={speed} onChange={(x) => { changeSlide(x) }} /></div>
-
 
 
 

@@ -8,10 +8,16 @@ passwords=json.load(open("passwords.json", "r"))
 networks={}
 client=docker.from_env()
 client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest")
+next_round=0
 if(not os.path.exists("./results/complete_rounds.json")):
     f=open("./results/complete_rounds.json", "w")
     f.write("[]")
     f.close()
+else:
+    data=json.load(open("./results/complete_rounds.json", "r"))
+    if(len(data)>0):
+        next_round=max(data)+1
+
 
 def recreate_networks():
     client.networks.prune()
@@ -120,5 +126,5 @@ def handle_round(round_ID):
     f.close()
 
 
-for x in range(22, 100):
+for x in range(next_round, 100):
     handle_round(x)

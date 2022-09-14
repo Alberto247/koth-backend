@@ -8,6 +8,7 @@ function OutputRenterer(props) {
     let { round, game } = useParams();
     const navigate = useNavigate();
     const [dockerOutput, setDockerOutput] = useState("");
+    props.setTopText("");
     useEffect(() => {
         async function loadDockerOutput(){
             let txt=await apiGetGameRoundOutput(game, round);

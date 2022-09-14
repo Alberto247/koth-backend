@@ -429,8 +429,11 @@ class Game:
 
     def do_move(self, player, move): 
         edited_hex=set()
-        hex_start=self.map[move[0]]
-        hex_end=self.map[move[1]]
+        try:
+            hex_start=self.map[move[0]]
+            hex_end=self.map[move[1]]
+        except Exception:
+            return edited_hex
         if(hex_start.get_owner_ID()==player and hex_start.get_current_value()>1 and hex_end.get_point_type()!=HEX_Type.WALL and move[1] in hex_start.get_neighbors()):
             amount=hex_start.get_current_value()-1
             hex_start.set_current_value(1)

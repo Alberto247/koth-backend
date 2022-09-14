@@ -21,6 +21,7 @@ function App() {
   const [mapStatus, setMapStatus] = useState({});
   const [gameHistory, setGameHistory] = useState([]);
   const [gameScoreboard, setGameScoreboard] = useState([]);
+  const [topText, setTopText] = useState("Games list")
   const [userID, setUserID] = useState(-1);
 
   useEffect(() => {
@@ -102,14 +103,14 @@ return (
   <BrowserRouter>
     <ToastContainer />
     <Container fluid className='px-0'>
-      <Topbar loggedIn={loggedIn} setUserID={setUserID} setLoggedIn={setLoggedIn} />
+      <Topbar topText={topText} loggedIn={loggedIn} setUserID={setUserID} setLoggedIn={setLoggedIn} />
       <Routes>
         <Route path="*" element={<Navigate to="/" replace />}></Route>
-        <Route path="/login" element={loggedIn?<Navigate to="/" replace></Navigate>:<LoginForm showError={showError} showSuccess={showSuccess} setLoggedIn={setLoggedIn} setUserID={setUserID}></LoginForm>}></Route>
-        <Route path="/" element={<GamesTable userID={userID} setMapStatus={setMapStatus} setGameScoreboard={setGameScoreboard} setGameHistory={setGameHistory} games={games} setLoading={setLoading} showError={showError} />} ></Route>
+        <Route path="/login" element={loggedIn?<Navigate to="/" replace></Navigate>:<LoginForm setTopText={setTopText} showError={showError} showSuccess={showSuccess} setLoggedIn={setLoggedIn} setUserID={setUserID}></LoginForm>}></Route>
+        <Route path="/" element={<GamesTable setTopText={setTopText} userID={userID} setMapStatus={setMapStatus} setGameScoreboard={setGameScoreboard} setGameHistory={setGameHistory} games={games} setLoading={setLoading} showError={showError} />} ></Route>
         <Route path="/play/:game/:round" element={<GameRenderer mapStatus={mapStatus} loadNext={undefined} gameScoreboard={gameScoreboard} gameHistory={gameHistory} setMapStatus={setMapStatus} setGameScoreboard={setGameScoreboard} setGameHistory={setGameHistory} setLoading={setLoading} showError={showError} />} ></Route>
-        <Route path="/output/:game/:round" element={<OutputRenterer></OutputRenterer>}></Route>
-        <Route path="/autoplay" element={<AutoPlayer></AutoPlayer>}></Route>
+        <Route path="/output/:game/:round" element={<OutputRenterer setTopText={setTopText}></OutputRenterer>}></Route>
+        <Route path="/autoplay" element={<AutoPlayer setTopText={setTopText}></AutoPlayer>}></Route>
       </Routes>
     </Container>
   </BrowserRouter>

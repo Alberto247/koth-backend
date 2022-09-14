@@ -22,6 +22,7 @@ function LoginForm(props) {
             }
         })
     }
+    props.setTopText("");
 
     return (
         <Form onSubmit={doLogin} className="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3 my-5">

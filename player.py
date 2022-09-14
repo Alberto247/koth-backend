@@ -71,9 +71,11 @@ class RemotePlayer():
         await self.websocket.send(data)
         try:
             move=json.loads(await asyncio.wait_for(self.websocket.recv(), timeout=0.1)) 
-            return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
+            if("start" in move and len(move["start"])==3 and "end" in move and len(move["end"])==3):
+                return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
+            return ((0,0,0), (0,0,0))
         except asyncio.TimeoutError:
-            return ((0,0,0),(0,0,0))
+            return ((0,0,0), (0,0,0))
 
     def set_map(self, map):
         self.player_map=map

@@ -75,6 +75,8 @@ function GamesTableRow(props) {
         props.setGameScoreboard(round_scoreboard);
         props.setGameHistory(gameHistory);
         props.setLoading(false);
+        
+        props.setTopText("Game "+game+" - Round " +round);
         navigate("/play/"+game+"/"+round);
     }
 
@@ -159,8 +161,9 @@ function GamesTableRow(props) {
 }
 
 function GamesTable(props) {
+    props.setTopText("Available games");
     var list = props.games.map(  // exam list to exam component list
-        (game) => <GamesTableRow userID={props.userID} setMapStatus={props.setMapStatus} setGameScoreboard={props.setGameScoreboard} setGameHistory={props.setGameHistory} setLoading={props.setLoading} showError={props.showError} game={game} key={game["ID"]}></GamesTableRow>
+        (game) => <GamesTableRow setTopText={props.setTopText} userID={props.userID} setMapStatus={props.setMapStatus} setGameScoreboard={props.setGameScoreboard} setGameHistory={props.setGameHistory} setLoading={props.setLoading} showError={props.showError} game={game} key={game["ID"]}></GamesTableRow>
     )
     const navigate = useNavigate();
     var autoplaybtn=<Button onClick={(e)=>{navigate("/autoplay")}} style={{ position: "fixed", zIndex: "9", "bottom":50, "right": 50 }}>{"Autoplay"}</Button>

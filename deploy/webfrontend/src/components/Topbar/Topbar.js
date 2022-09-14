@@ -23,8 +23,8 @@ function Topbar(props) {
                 <div className='d-flex col-4' onClick={() => navigate('/')}>
                     <Navbar.Brand href="/"><h1>Koth frontend</h1></Navbar.Brand>
                 </div>
-                {/* <div className="text-white d-flex col-4"><Navbar.Brand>{props.loggedIn?"Welcome "+props.loggedIn.username:""}</Navbar.Brand></div> */}
-                <Nav>
+                 <div className="text-white d-flex col-4"><Navbar.Brand>{props.topText}</Navbar.Brand></div> 
+                <Nav className="d-flex col-2">
                 <NavItem>
                     <NavLink  eventKey="/" onClick={() => {props.loggedIn ? logout() : navigate("/login")}}><h3>{buttonText}</h3></NavLink>
                 </NavItem>
