@@ -167,6 +167,7 @@ function GamesTable(props) {
     )
     const navigate = useNavigate();
     var autoplaybtn=<Button onClick={(e)=>{navigate("/autoplay")}} style={{ position: "fixed", zIndex: "9", "bottom":50, "right": 50 }}>{"Autoplay"}</Button>
+    var customplaybtn=<Button onClick={(e)=>{navigate("/player")}} style={{ position: "fixed", zIndex: "9", "bottom":50, "right": 150 }}>{"Load game from file"}</Button>
     return (<>
         <Table striped bordered hover>
             <thead>
@@ -185,7 +186,7 @@ function GamesTable(props) {
                 {list}
             </tbody>
         </Table>
-        {autoplaybtn}</>
+        {customplaybtn}{autoplaybtn}</>
     );
 }
 

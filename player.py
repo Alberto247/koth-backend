@@ -74,7 +74,7 @@ class RemotePlayer():
             if("start" in move and len(move["start"])==3 and "end" in move and len(move["end"])==3):
                 return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
             return ((0,0,0), (0,0,0))
-        except asyncio.TimeoutError:
+        except Exception:
             return ((0,0,0), (0,0,0))
 
     def set_map(self, map):

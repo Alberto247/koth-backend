@@ -7,7 +7,7 @@ PLAYERS=16
 passwords=json.load(open("passwords.json", "r"))
 networks={}
 client=docker.from_env()
-client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest")
+print(client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest"))
 next_round=0
 if(not os.path.exists("./results/complete_rounds.json")):
     f=open("./results/complete_rounds.json", "w")
@@ -32,7 +32,7 @@ def handle_game(players, history, scoreboard, prefix):
     player_images={}
     print("Creating player containers")
     for player in players:
-        player_images[player]=client.containers.run(f"team{player}.registry.alberto247.xyz:7394/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", detach=True) #TODO: limits
+        player_images[player]=client.containers.run(f"team{player}.registry.alberto247.xyz:7394/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True) #TODO: limits
     print("Creating backend container")
     backend=client.containers.run("kothbackend:latest", name=f"{prefix}-kothbackend", environment=[f"PLAYERS={','.join([str(_) for _ in players])}", "HISTORY_PATH="+history, "SCOREBOARD_PATH="+scoreboard], volumes=[os.getcwd()+'/results:/results'], detach=True)
     for player in players:
@@ -127,4 +127,8 @@ def handle_round(round_ID):
 
 
 for x in range(next_round, 100):
-    handle_round(x)
+    try:
+        handle_round(x)
+    except Exception as e:
+        print(e)
+        pass

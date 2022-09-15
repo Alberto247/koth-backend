@@ -11,6 +11,7 @@ import LoginForm from './components/Login/Login';
 import "react-toastify/dist/ReactToastify.css";
 import OutputRenterer from './components/OutputRenderer/OutputRenderer';
 import AutoPlayer from './components/AutoPlayer/AutoPlayer';
+import FilePlayer from './components/FilePlayer/FilePlayer';
 
 let gamesID=[]
 
@@ -111,6 +112,7 @@ return (
         <Route path="/play/:game/:round" element={<GameRenderer mapStatus={mapStatus} loadNext={undefined} gameScoreboard={gameScoreboard} gameHistory={gameHistory} setMapStatus={setMapStatus} setGameScoreboard={setGameScoreboard} setGameHistory={setGameHistory} setLoading={setLoading} showError={showError} />} ></Route>
         <Route path="/output/:game/:round" element={<OutputRenterer setTopText={setTopText}></OutputRenterer>}></Route>
         <Route path="/autoplay" element={<AutoPlayer setTopText={setTopText}></AutoPlayer>}></Route>
+        <Route path="/player" element={<FilePlayer setTopText={setTopText}></FilePlayer>}></Route>
       </Routes>
     </Container>
   </BrowserRouter>

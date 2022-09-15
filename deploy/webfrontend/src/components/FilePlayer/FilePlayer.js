@@ -1,13 +1,15 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import {apiGetGames, apiGetGameRoundHistory, apiGetGameRoundScoreboard, apiGetGameRounds} from "../../api.js"
+import { apiGetGames, apiGetGameRoundHistory, apiGetGameRoundScoreboard, apiGetGameRounds } from "../../api.js"
 import GameRenderer from '../GameRenderer/GameRenderer.js';
 import { Container, Row, Spinner, Button } from 'react-bootstrap';
 import { HexGrid, Layout, Hexagon, Text, GridGenerator } from 'react-hexgrid';
 import { FaRegFlag, FaMountain, FaFortAwesome } from 'react-icons/fa';
-import {GiCrystalGrowth}from 'react-icons/gi';
+import { GiCrystalGrowth } from 'react-icons/gi';
 import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table';
+import { useDropzone } from 'react-dropzone'
+import "./FilePlayer.css";
 
 const POINT_TYPES = {
     UNKNOWN_OBJECT: -2,
@@ -48,7 +50,7 @@ function getTextColor(tile, pov, hex_map) {
     if (point_type === POINT_TYPES.FLAG) {
         text = `${current_value}`
         color = colors[owner_ID]
-        icon = <FaRegFlag x="-0.5em" y="-0.9em" fontSize="0.1em"/>
+        icon = <FaRegFlag x="-0.5em" y="-0.9em" fontSize="0.1em" />
     } else if (point_type === POINT_TYPES.GRASS) {
         if (current_value !== 0) {
             text = `${current_value}`
@@ -56,31 +58,31 @@ function getTextColor(tile, pov, hex_map) {
         color = colors[owner_ID]
     } else if (point_type === POINT_TYPES.WALL) {
         // color = 'black'
-        icon= <FaMountain x="-0.5em" y="-0.5em" fontSize="0.16em"/>
+        icon = <FaMountain x="-0.5em" y="-0.5em" fontSize="0.16em" />
     } else if (point_type === POINT_TYPES.FORT) {
         text = `${current_value}`
-        icon = <FaFortAwesome x="-0.5em" y="-1em" fontSize="0.1em"/>
+        icon = <FaFortAwesome x="-0.5em" y="-1em" fontSize="0.1em" />
         color = colors[owner_ID]
     } else if (point_type === POINT_TYPES.CRYPTO_CRYSTAL) {
-        text = `${current_value}` 
+        text = `${current_value}`
         color = colors[owner_ID]
-        icon = <GiCrystalGrowth style={{ fill: 'green' }} x="-0.5em" y="-1em" fontSize="0.1em"/>
+        icon = <GiCrystalGrowth style={{ fill: 'green' }} x="-0.5em" y="-1em" fontSize="0.1em" />
     } else if (point_type === POINT_TYPES.WEB_CRYSTAL) {
         text = `${current_value}`
         color = colors[owner_ID]
-        icon = <GiCrystalGrowth style={{ fill: 'yellow' }} x="-0.5em" y="-1em" fontSize="0.1em"/>
+        icon = <GiCrystalGrowth style={{ fill: 'yellow' }} x="-0.5em" y="-1em" fontSize="0.1em" />
     } else if (point_type === POINT_TYPES.REV_CRYSTAL) {
         text = `${current_value}`
         color = colors[owner_ID]
-        icon = <GiCrystalGrowth style={{ fill: 'blue' }} x="-0.5em" y="-1em" fontSize="0.1em"/>
+        icon = <GiCrystalGrowth style={{ fill: 'blue' }} x="-0.5em" y="-1em" fontSize="0.1em" />
     } else if (point_type === POINT_TYPES.PWN_CRYSTAL) {
         text = `${current_value}`
         color = colors[owner_ID]
-        icon = <GiCrystalGrowth style={{ fill: 'purple' }} x="-0.5em" y="-1em" fontSize="0.1em"/>
+        icon = <GiCrystalGrowth style={{ fill: 'purple' }} x="-0.5em" y="-1em" fontSize="0.1em" />
     } else if (point_type === POINT_TYPES.MISC_CRYSTAL) {
         text = `${current_value}`
         color = colors[owner_ID]
-        icon = <GiCrystalGrowth style={{ fill: 'brown' }} x="-0.5em" y="-1em" fontSize="0.1em"/>
+        icon = <GiCrystalGrowth style={{ fill: 'brown' }} x="-0.5em" y="-1em" fontSize="0.1em" />
     } else if (point_type === POINT_TYPES.UNKNOWN_EMPTY) {
         color = 'grey'
         icon = null
@@ -172,7 +174,7 @@ function getTextColor(tile, pov, hex_map) {
 function SingleHexagon(props) {
     const [text, color, icon] = getTextColor(props.tile, props.pov, props.mapStatus);
     return (
-        <Hexagon style={{ fill: color }} stroke={"black"} strokeWidth={0.2} q={props.pos[0]} r={props.pos[1]} s={props.pos[2]} >{icon===null?<></>:icon}<Text style={{ fill: "black" }} strokeWidth={0} y="1em" fontSize="0.07em" fontWeight={"-1"}>{text}</Text></Hexagon>
+        <Hexagon style={{ fill: color }} stroke={"black"} strokeWidth={0.2} q={props.pos[0]} r={props.pos[1]} s={props.pos[2]} >{icon === null ? <></> : icon}<Text style={{ fill: "black" }} strokeWidth={0} y="1em" fontSize="0.07em" fontWeight={"-1"}>{text}</Text></Hexagon>
     )
 }
 
@@ -242,7 +244,7 @@ function LiveStats(props) {
     }
     ordered_scoreboard.reverse()
     let rows = ordered_scoreboard.map((row, i) => <tr key={props.ID + row["ID"].toString()} style={{ backgroundColor: colors[row["ID"]] }}><td>{i + 1}</td><td>{row["name"]}</td><td>{row["value"]}</td><td>{row["land"]}</td></tr>)
-    
+
     return <div style={{ position: "absolute", float: "right", zIndex: "9", "top": 100, "right": 0 }}><Table striped bordered hover>
         <thead>
             <tr style={{ backgroundColor: "grey" }}>
@@ -258,12 +260,11 @@ function LiveStats(props) {
     </Table></div>
 }
 
-let ignoredRounds=[];
-let gameQueue=[];
-let game_history_react_porcoddio=[];
-let shouldRun=false;
+let game_history_react_porcoddio = [];
+let historyOk = false;
+let scoreboardOk = false;
 
-function AutoPlayer(props){
+function FilePlayer(props) {
     const navigate = useNavigate();
     const [enabled, setEnabled] = useState(false);
     const [mapStatus, setMapStatus] = useState({});
@@ -278,47 +279,16 @@ function AutoPlayer(props){
 
     window.onpopstate = () => {
         setShownTick(0);
-        clearInterval(intervalid);
-        tick=0;
-        intervalid=undefined;
-        shouldRun=false;
-    }
-
-    async function loadNewGames(){
+        tick = 0;
+        historyOk = false;
+        scoreboardOk = false;
         setGameRunning(false);
-        while(gameQueue.length<=0){
-            if(!shouldRun){
-                return;
-            }
-            console.log("Autoplay checking for new games")
-            const res = await apiGetGames();
-            for (const game of res){
-                if (!ignoredRounds.includes(game)){
-                    ignoredRounds.push(game);
-                    let tmp_rounds = await apiGetGameRounds(game);
-                    tmp_rounds.sort();
-                    for (const round of tmp_rounds){
-                        gameQueue.push([game, round]);
-                    }
-                }
-            }
-            if(gameQueue.length<=0){
-                await new Promise(r => setTimeout(r, 10000));
-            }
-        }
-        console.log("New games found, autoplaying")
-        console.log(gameQueue);
-        
+        setEnabled(false);
     }
 
-    async function enableAutoPlay(e){
-        e.preventDefault();
+    async function enableGame() {
         setEnabled(true);
-        shouldRun=true;
-        const res = await apiGetGames();
-        ignoredRounds=res.slice();
-        gameQueue=[];
-        await nextGame();
+        await loadGame();
     }
 
     function start_ticking(speed_tick) {
@@ -329,9 +299,8 @@ function AutoPlayer(props){
                 setShownTick(tick)
                 if (tick >= game_history_react_porcoddio.length) {
                     clearInterval(intervalid);
-                    intervalid=undefined;
+                    intervalid = undefined;
                     setDisabled(true);
-                    nextGame();
                 } else {
                     game_tick(game_history_react_porcoddio[tick], setMapStatus);
                 }
@@ -353,7 +322,7 @@ function AutoPlayer(props){
         setShownTick(tick)
         crystal_handled = [];
         crystal_tiles_seens = [];
-        deaths=[];
+        deaths = [];
         game_tick(gameHistory[0], setMapStatus);
         setDisabled(false);
     }
@@ -370,26 +339,17 @@ function AutoPlayer(props){
 
     function changeSlide(event) {
         setSpeed(event.target.value);
-        
+
         if (intervalid != undefined) {
             stop_ticking();
             start_ticking(event.target.value);
         }
     }
 
-    async function nextGame(){
-        if(gameQueue.length<=0){
-            props.setTopText("Waiting for next game...");
-            await loadNewGames();
+    async function loadGame() {
+        while(gameHistory.length<=0){
+            await new Promise(r => setTimeout(r, 1000));
         }
-        if(!shouldRun){
-            return;
-        }
-        const dest = gameQueue.pop(0).slice();
-        const game = dest[0];
-        const round = dest[1];
-        let round_scoreboard=await apiGetGameRoundScoreboard(game, round);
-        let gameHistory = await apiGetGameRoundHistory(game, round);
         let hexagonMap = {};
         const hexagons = GridGenerator.hexagon(10);
         for (const hexagon of hexagons) {
@@ -402,45 +362,121 @@ function AutoPlayer(props){
             hexagonMap[hexagon[0]]["tuple"] = hexagon[0]
         }
         setMapStatus(hexagonMap);
-        setGameScoreboard(round_scoreboard);
-        setGameHistory(gameHistory);
         setGameRunning(true);
-        game_history_react_porcoddio=gameHistory;
+        game_history_react_porcoddio = gameHistory;
         tick = 0;
         setShownTick(tick)
         crystal_handled = [];
         crystal_tiles_seens = [];
-        deaths=[];
+        deaths = [];
+
         setDisabled(false);
-        setSpeed(100);
-        setTimeout(()=>{start_ticking(100);}, 2000);
-        props.setTopText("Game "+game+" - round "+round);
+
     }
 
-    if(!enabled){
-        props.setTopText("");
-        return <h1>Autoplay is disabled. <Button onClick={enableAutoPlay}>Enable autoplay</Button></h1>
+    props.setTopText("Custom game loader");
+
+    function loadHistory(files){
+        if(files?.length==1){
+            const file=files[0];
+            const reader = new FileReader()
+            reader.onabort = () => console.log('file reading was aborted')
+            reader.onerror = () => console.log('file reading has failed')
+            reader.onload = () => {
+            // Do whatever you want with the file contents
+                const binaryStr = reader.result
+                const data=JSON.parse(binaryStr);
+                if(data.length>0){
+                    setGameHistory(data);
+                    historyOk=true;
+                    if(scoreboardOk){
+                        enableGame();
+                    }
+                }
+            }
+            reader.readAsText(file)
+        }
     }
 
-    if(!gameRunning){
+    function loadScoreboard(files){
+        if(files?.length==1){
+            const file=files[0];
+            const reader = new FileReader()
+            reader.onabort = () => console.log('file reading was aborted')
+            reader.onerror = () => console.log('file reading has failed')
+            reader.onload = () => {
+            // Do whatever you want with the file contents
+                const binaryStr = reader.result
+                const data=JSON.parse(binaryStr);
+                if(data.length>0){
+                    setGameScoreboard(data);
+                    scoreboardOk=true;
+                    if(historyOk){
+                        enableGame();
+                    }
+                }
+            }
+            reader.readAsText(file)
+        }
+    }
+
+    let state = useDropzone({
+        accept: {
+          'application/JSON': []
+        },
+        multiple:false,
+        onDrop: files => loadHistory(files),
+        disabled: historyOk
+    });
+    const getRootPropsHistory=state.getRootProps
+    const getInputPropsHistory=state.getInputProps
+
+     state = useDropzone({
+        accept: {
+          'application/JSON': []
+        },
+        multiple:false,
+        onDrop: files => loadScoreboard(files),
+        disabled: scoreboardOk
+    });
+
+    const getRootPropsScoreboard=state.getRootProps
+    const getInputPropsScoreboard=state.getInputProps
+
+    if (!enabled) {
+        return (  
+            <div className="container">
+              <div {...getRootPropsHistory({className: 'dropzone'})} >
+              <input {...getInputPropsHistory()} />
+                <p>{historyOk?"File uploaded correctly":"Drop here your history.json file"}</p>
+              </div>
+              <div {...getRootPropsScoreboard({className: 'dropzone'})} >
+              <input {...getInputPropsScoreboard()} />
+                <p>{scoreboardOk?"File uploaded correctly":"Drop here your scoreboard.json file"}</p>
+              </div>
+            </div>
+          );
+    }
+
+    if (!gameRunning) {
         return <Container fluid style={{ height: "100vh" }} className="d-flex align-items-center justify-content-center">
-          <Row>
-            <Spinner animation="border" variant="primary" className="spin-load" size="lg" />
-          </Row>
+            <Row>
+                <Spinner animation="border" variant="primary" className="spin-load" size="lg" />
+            </Row>
         </Container>;
     }
 
-    
+
 
     colors = { null: "none" }
-        for (const entry of gameScoreboard) {
-            colors[entry["ID"]] = PLAYER_COLORS[entry["real_ID"]];
-            tmp_ID_map[entry["ID"]] = entry["real_ID"];
-        }
-        let players = gameScoreboard.map((x) => x["ID"])
-        players.sort()
+    for (const entry of gameScoreboard) {
+        colors[entry["ID"]] = PLAYER_COLORS[entry["real_ID"]];
+        tmp_ID_map[entry["ID"]] = entry["real_ID"];
+    }
+    let players = gameScoreboard.map((x) => x["ID"])
+    players.sort()
 
-    const options = players.map((x) => <option key={"player"+x} value={x} style={{ backgroundColor: colors[x] }}>{ID_map[tmp_ID_map[x]]}</option>)
+    const options = players.map((x) => <option key={"player" + x} value={x} style={{ backgroundColor: colors[x] }}>{ID_map[tmp_ID_map[x]]}</option>)
     const changePov = <select style={{ backgroundColor: colors[pov] }}
         value={pov}
         onChange={(e) => { setPov(e.target.value) }}
@@ -455,4 +491,4 @@ function AutoPlayer(props){
 }
 
 
-export default AutoPlayer
+export default FilePlayer

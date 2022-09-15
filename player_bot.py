@@ -6,7 +6,7 @@ class Bot():
     def __init__(self):
         self.player_id=None
         self.map=None
-        self.player_name=os.environ.get("name")
+        self.player_name=os.environ.get("name") # Feel free to change this to something funny
         if(self.player_name==None):
             self.player_name="UnknownBot"
     

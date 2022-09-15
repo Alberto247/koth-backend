@@ -374,8 +374,8 @@ class Game:
                 break
             self.tick()
         print(f"Simulation ended in {time.time()-start}")
-        self.json_serialize_history('./frontend/history.json')
-        self.generate_results("./frontend/scoreboard.json")
+        self.json_serialize_history('./history.json')
+        self.generate_results("./scoreboard.json")
     
     async def run_async(self, players):
         for x in range(PLAYERS): # Use this for websocket testing
