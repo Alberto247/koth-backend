@@ -1,8 +1,5 @@
 from config import *
-
 from game import Game
-from hex_types import *
-from lloyd import *
 import time
 import asyncio
 import os

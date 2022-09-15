@@ -1,3 +1,7 @@
+'''
+    This file handles every game. At initialization it creates the map.
+'''
+
 from map import Map
 from config import *
 from lloyd import *
@@ -26,6 +30,7 @@ class Game:
         self.last_tick_deads = False
         self.dead_order = []
 
+        # Create an empty map
         for q in range(-SIDE, SIDE+1):
             for r in range(-SIDE, SIDE+1):
                 s = -(q+r)
@@ -135,7 +140,7 @@ class Game:
                 r = random.randint(-SIDE, SIDE)
                 s = -(q+r)
             start = Hex((q, r, s))
-            number = random.randint(1, MOUNTAIN_LINKAGE)
+            number = random.randint(1, MOUNTAIN_LINKAGE) # Generate mountain range of at most MOUNTAIN_LINKAGE
             for x in range(number):
                 if(self.map[start].get_point_type() not in [HEX_Type.FLAG, HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL]):
                     self.map[start].set_point_type(HEX_Type.WALL)
@@ -144,15 +149,17 @@ class Game:
 
         print("Running reachability fix...")
 
-        # verify everyone can reach everyone
+        # verify everyone can reach everyone and every important point
         reachable_spots = self.player_spawns+self.crystal_spots
 
         self.reachability_fix(reachable_spots)
 
+        #Fill unreachable spots in map with mountains
         print("Running mountain fix...")
 
         self.mountain_fix()
 
+        # Sanity checks, this should always pass if you did not modify the above code
         assert self.reachability_test(
             reachable_spots) == True, f"Some places are not reachable?"
 
@@ -164,6 +171,7 @@ class Game:
             assert self.map[x].get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL,
                                                     HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL], f"Sanity check failed, a crystal is now {self.map[x].get_point_type()}"
 
+        # Now place forts randomly
         print("Placing forts...")
 
         tot_forts = floor(total_tiles*FORT_DENSITY)
@@ -181,8 +189,10 @@ class Game:
             self.map[(q, r, s)].set_current_value(number)
             n_forts += 1
 
+        # Save map to history
         self.history.append(self.map.serializable())
 
+    # Simple bfs from player 0 to check that he can reach everyone
     def reachability_test(self, reachable_spots):
         mapcopy = copy.deepcopy(self.map)
         start = self.player_spawns[0]
@@ -192,6 +202,7 @@ class Game:
                 return False
         return True
 
+    # Bfs to find unreachable spots and fill them with mountains
     def mountain_fix(self):
         mapcopy = copy.deepcopy(self.map)
         start = self.player_spawns[0]
@@ -201,10 +212,11 @@ class Game:
                 self.map[hex.get_position_tuple()].set_point_type(
                     HEX_Type.WALL)
 
+    # Fix reachability using bfs and lines
     def reachability_fix(self, reachable_spots):
         mapcopy = copy.deepcopy(self.map)
         start = self.player_spawns[0]
-        self.bfs(mapcopy, start)  # color all map of color 0
+        self.bfs(mapcopy, start)  # bfs to color all map of color 0
         for x in reachable_spots:
             if(mapcopy[x].get_owner_ID() != 0):  # if we find something not connected
                 # choose a random point until it is a connected point
@@ -235,22 +247,22 @@ class Game:
         self.player_controllers.append(controller)
         self.player_crystals.append([])
 
+    # This function generates the map the player is supposed to see.
     def generate_player_map(self, player):
-        player_map = copy.deepcopy(self.map)
-        # TODO: maybe reverse logic, add seen instead of removing unseen
+        player_map = copy.deepcopy(self.map) # Make a copy of the full map
         self.player_controllers[player].seen_tiles = set(
-            player_map.hash_map.keys())
-        for tile in player_map.hash_map.values():
-            if(tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in tile.get_neighbors()])):
+            player_map.hash_map.keys()) # And set all tiles to seen
+        for tile in player_map.hash_map.values(): # For every tile
+            if(tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in tile.get_neighbors()])): # If not seen
                 if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
-                    tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
+                    tile.set_point_type(HEX_Type.UNKNOWN_EMPTY) # Hide it
                 else:
                     tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                 tile.set_current_value(0)
                 tile.set_owner_ID(None)
                 self.player_controllers[player].seen_tiles.remove(
-                    tile.get_position_tuple())
-        for crystal in self.crystal_spots:
+                    tile.get_position_tuple()) # And remove from seen set
+        for crystal in self.crystal_spots: # TODO: BUG: Why don't we add the crystal and crystal's neighbours tiles to the seen ones?
             if(crystal.get_point_type() in self.player_crystals[player]):
                 player_map[crystal] = copy.deepcopy(self.map[crystal])
                 for x in crystal.get_neighbors():
@@ -264,6 +276,7 @@ class Game:
             self.player_controllers[player].set_map(
                 self.generate_player_map(player))
 
+    # Takes all updates in the map and applies them to the players' maps
     def update_players_maps(self, moves):
         players_edits = []
         for player in range(PLAYERS):  # for each player, apply all moves
@@ -318,15 +331,15 @@ class Game:
                                 map_neighbour_tile.serializable())  # add tile to edits
                             self.player_controllers[player].seen_tiles.add(
                                 neighbour_tile)  # add tile tuple to seen tiles
-            for crystal in self.crystal_spots:
-                if(crystal.get_point_type() in self.player_crystals[player]):
-                    player_map[crystal.get_position_tuple()] = copy.deepcopy(
+            for crystal in self.crystal_spots: # For every crystal
+                if(crystal.get_point_type() in self.player_crystals[player]): # If player has conquered that crystal in the past
+                    player_map[crystal.get_position_tuple()] = copy.deepcopy( # Make it visible
                         self.map[crystal.get_position_tuple()])
                     single_player_edits.append(
                         self.map[crystal.get_position_tuple()].serializable())
                     self.player_controllers[player].seen_tiles.add(
                         crystal.get_position_tuple())
-                    for x in crystal.get_neighbors():
+                    for x in crystal.get_neighbors(): # Do it for the crystal's neighbours
                         player_map[x] = copy.deepcopy(self.map[x])
                         single_player_edits.append(self.map[x].serializable())
                         self.player_controllers[player].seen_tiles.add(x)
