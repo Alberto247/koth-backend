@@ -2,7 +2,7 @@ import random
 import os
 from hex_types import HEX_Type
 
-
+# Your bot! This is a stupid example which moves random, hopefully yours will be better ;)
 class Bot():
     def __init__(self):
         self.player_id = None

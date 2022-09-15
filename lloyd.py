@@ -1,7 +1,7 @@
 from Hex import *
 from config import *
 
-
+# Computes voroni diagram of map with players
 def compute_voronoi(map, players_positions):
     for q in range(-SIDE, SIDE+1):
         for r in range(-SIDE, SIDE+1):
@@ -17,7 +17,7 @@ def compute_voronoi(map, players_positions):
                         min_distance_player = x
                 hex.set_owner_ID(min_distance_player)
 
-
+# Relax player positions using lloyd's algorithm
 def relax(map, player_spawns):
     centers = {}
     counts = {}

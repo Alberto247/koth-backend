@@ -9,7 +9,8 @@ import copy
 from hex_types import HEX_Type
 import os
 
-
+# Adapter for the remote interface. Allows for your bot to run remotely without any modifications to your code.
+# You can change this, but if I were you I wouldn't :)
 class RemotePlayerAdapter():
     def __init__(self, port):
         start_server = websockets.serve(self.handle_messages, '0.0.0.0', port)

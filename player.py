@@ -8,7 +8,8 @@ import json
 import pickle
 import time
 
-
+# Wrapper for the bot.
+# Testing player is used for testing, remote player for production. They behave the same way, except that the remote one requires the remote player adapter.
 class TestingPlayer():
     def __init__(self, ID, controller):
         self.player_id = ID

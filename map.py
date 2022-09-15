@@ -1,22 +1,22 @@
 from config import *
 from Hex import Hex
 
-
+# Represents the map
 class Map:
 
     def __init__(self, data=None):
-        self.hash_map = {}
+        self.hash_map = {} # This is a dictionary mapping tuples to hex objects
         if(data != None):
             for x in data:
                 self.hash_map[x[0]] = Hex(x[0], x[1], x[2], x[3])
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value): # This allows to use both hex objectes and tuples as map keys
         if(type(key) is Hex):
             self.hash_map[key.get_position_tuple()] = value
         else:
             self.hash_map[key] = value
 
-    def __getitem__(self, key) -> Hex:
+    def __getitem__(self, key) -> Hex: # This allows to use both hex objectes and tuples as map keys
         if(type(key) is Hex):
             return self.hash_map[key.get_position_tuple()]
         return self.hash_map[key]

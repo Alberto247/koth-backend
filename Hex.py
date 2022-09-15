@@ -54,7 +54,7 @@ def hex_linedraw(a, b):
         results.append(hex_round(q, r, s))
     return results
 
-
+# Class representing a single hex
 class Hex:
 
     def __init__(self, location, point_type=HEX_Type.GRASS, owner_ID=None, current_value=0):
