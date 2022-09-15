@@ -17,6 +17,7 @@ def compute_voronoi(map, players_positions):
                         min_distance_player = x
                 hex.set_owner_ID(min_distance_player)
 
+
 def relax(map, player_spawns):
     centers = {}
     counts = {}
@@ -38,7 +39,7 @@ def relax(map, player_spawns):
         centers[x] = hex_round(centers[x].q/counts[x],
                                centers[x].r/counts[x], centers[x].s/counts[x])
 
-    for x in range(PLAYERS):  
+    for x in range(PLAYERS):
         dist_q = player_spawns[x].q-centers[x].q
         dist_r = player_spawns[x].r-centers[x].r
         dist_s = player_spawns[x].s-centers[x].s
@@ -69,4 +70,3 @@ def relax(map, player_spawns):
                     player_spawns[x].r += 1
                     player_spawns[x].q -= 1
     return player_spawns
-

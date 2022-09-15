@@ -13,14 +13,11 @@ game = Game()
 if(DEBUG):
     game.run()
 else:
-    players=os.environ.get("PLAYERS")
-    if(players==None):
-        players=range(PLAYERS)
+    players = os.environ.get("PLAYERS")
+    if(players == None):
+        players = range(PLAYERS)
     else:
-        players=[int(_) for _ in players.split(",")]
+        players = [int(_) for _ in players.split(",")]
     print(f"Starting game for players {players}")
     time.sleep(10)
     asyncio.run(game.run_async(players))
-
-
-

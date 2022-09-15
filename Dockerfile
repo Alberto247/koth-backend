@@ -3,7 +3,6 @@ RUN apt install gcc g++
 RUN pypy3 -m pip install websockets asyncio numpy
 COPY backend.py /
 COPY config.py /
-COPY debug.py /
 COPY game.py /
 COPY hex_types.py /
 COPY Hex.py /
