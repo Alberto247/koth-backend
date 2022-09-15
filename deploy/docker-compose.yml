@@ -167,6 +167,11 @@ services:
         volumes: 
           - "./results:/results"
         hostname: "backend"
+    
+    frontend:
+        image: httpd:latest
+        volumes:
+        - ./webfrontend/build:/usr/local/apache2/htdocs
 
     nginx:
         image: nginx:alpine

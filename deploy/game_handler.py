@@ -2,7 +2,9 @@ import json
 import docker
 import os
 import random
+import time
 PLAYERS=16
+ROUND_LENGTH=5*60
 
 passwords=json.load(open("passwords.json", "r"))
 networks={}
@@ -129,6 +131,8 @@ def handle_round(round_ID):
 for x in range(next_round, 100):
     try:
         handle_round(x)
+        while(int(time.time())%ROUND_LENGTH>10):
+            time.sleep(5)
     except Exception as e:
         print(e)
         pass

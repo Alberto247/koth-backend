@@ -13,3 +13,9 @@
  - random_bot.py : bot example doing random movements
  - remote_player_adapter.py : code running remotely handling the websocket
 
+# How to deploy
+
+   1. cd deploy/webfrontend && npm i && npm run build && cd .. && docker-compose up --build -d && python3 setup_all.py
+   2. Setup correct passwords in deploy/webbackend/index.js
+   3. Rebuild container
+   4. Profit
