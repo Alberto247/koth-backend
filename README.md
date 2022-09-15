@@ -19,3 +19,8 @@
    2. Setup correct passwords in deploy/webbackend/index.js
    3. Rebuild container
    4. Profit
+
+# What to distribute
+
+   1. All files in this directory, with DEBUG=True in config.py
+   2. A proper README # TODO
