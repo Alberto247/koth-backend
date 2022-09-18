@@ -272,7 +272,7 @@ class Game:
                     self.player_controllers[player].seen_tiles.add(x)
                     for y in player_map[x].get_neighbors():
                         player_map[y] = copy.deepcopy(self.map[y])
-                        self.player_controllers[player].seen_tiles.add(Y)
+                        self.player_controllers[player].seen_tiles.add(y)
         return player_map
 
     def generate_all_players_maps(self):
@@ -588,4 +588,5 @@ class Game:
         return self.player_spawns
 
     def json_serialize_history(self, filename):
-        json.dump(self.history, open(filename, 'w'))
+        with open(filename, 'w') as f:
+            json.dump(self.history, f)

@@ -75,7 +75,7 @@ function GamesTableRow(props) {
         props.setGameHistory(gameHistory);
         props.setLoading(false);
         
-        props.setTopText("Game "+game+" - Round " +round);
+        props.setTopText("Game "+game+" - Round " +(round=="final"?round:round+1));
         navigate("/play/"+game+"/"+round);
     }
 
