@@ -296,7 +296,7 @@ function AutoPlayer(props){
                 if (!ignoredRounds.includes(game)){
                     ignoredRounds.push(game);
                     let tmp_rounds = await apiGetGameRounds(game);
-                    tmp_rounds.sort();
+                    tmp_rounds= tmp_rounds.sort().reverse();
                     for (const round of tmp_rounds){
                         gameQueue.push([game, round]);
                     }
@@ -414,7 +414,7 @@ function AutoPlayer(props){
         setDisabled(false);
         setSpeed(100);
         setTimeout(()=>{start_ticking(100);}, 2000);
-        props.setTopText("Game "+game+" - round "+round);
+        props.setTopText("Game "+game+" - Round "+(round=="final"?round:round+1));
     }
 
     if(!enabled){
