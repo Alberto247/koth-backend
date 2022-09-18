@@ -2,7 +2,7 @@ import './App.css';
 import { apiGetGames, apiGetGamesScoreboard, apiIsLoggedIn } from './api.js'
 import { Container, Row, Spinner } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import GamesTable from './components/GamesTable/GamesTable.js'
 import { ToastContainer, toast } from "react-toastify";
 import Topbar from "./components/Topbar/Topbar.js"
@@ -101,7 +101,7 @@ if (loading) {
 }
 
 return (
-  <BrowserRouter>
+  <HashRouter>
     <ToastContainer />
     <Container fluid className='px-0'>
       <Topbar topText={topText} loggedIn={loggedIn} setUserID={setUserID} setLoggedIn={setLoggedIn} />
@@ -115,7 +115,7 @@ return (
         <Route path="/player" element={<FilePlayer setTopText={setTopText}></FilePlayer>}></Route>
       </Routes>
     </Container>
-  </BrowserRouter>
+  </HashRouter>
 );
 }
 
