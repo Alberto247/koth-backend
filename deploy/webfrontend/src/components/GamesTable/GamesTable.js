@@ -4,9 +4,8 @@ import { Play } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import {apiGetGameRoundHistory, apiGetGameRoundScoreboard} from "../../api.js"
 import { GridGenerator } from 'react-hexgrid';
+import { teams as ID_map } from '../../config.js';
 
-
-const ID_map = { 1: "team1", 2: "team2", 3: "team3", 4: "team4", 5: "team5", 6: "team6", 7: "team7", 8: "team8", 9: "team9", 10: "team10", 11: "team11", 12: "team12", 13: "team13", 14: "team14", 15: "team15", 16: "team16" }
 const PLAYER_COLORS = { null: "none", 1: "#008000", 2: "#0000FF", 3: "#FF0000", 4: "#00FFFF", 5: "#FF00FF", 6: "#FFFF00", 7: "salmon", 8: "darkorange", 9: "lime", 10: "violet", 11: "pink", 12: "grey", 13: "royalblue", 14: "palegreen", 15: "peru", 16: "orangered" }
 
 function RoundScoreboardOverlay(props) {

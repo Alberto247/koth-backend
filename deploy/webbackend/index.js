@@ -9,16 +9,16 @@ const fs = require('fs');
 const PORT = 3001;
 const passwords=["ytSIO8IjtEzPq88rqK9nGR1F6vBnDjaC", "JWWiiewlflUAEPxeegY1QnJUlEFpZqty", "GGC38aq8lHxbrabL4q6G24eXUUdrQDeM", "ZZrB5M0ypa9Bb5pUjUPjlw81LQk5ufzI", "t14fuoepH1p6fJUHZrISw9wERfuiA5W2", "kB1C0Q7zdbAcA9gfIa36CZJgKu681gsD", "6TezQR5Nm4aAaQMC7OSNBwlkKuUXHo1i", "Qlg615XfjnxT8W7CZUvcHccOc39e7Ur0", "nvaZgIvoJnMHkIfn7rSUJY7porDNW9OV", "CQVhZNyCks33eTLhyI4FCFH2LSUbzAEK", "V7h5GBLqNpsKM9rk2hSWbKu2FTfEKYu8", "6hLQVNQaq1KXf3pLu6ALvfWHNp9HeFQM", "5TWEKVxt1CMh3S4kQE2PDR6c3gu4oPlJ", "K4qWo4Qxip8YBcIIIhEIALN2WTqn5YvB", "BBIUV6GyjRpE8dI3ZEg7KDjGh1le2aB5", "h4A8XwTwtIpFxE00kttqHPVjnW34m2Y8"]
 const users = {
-    "team1": [passwords[0], 1],
-    "team2": [passwords[1], 2],
-    "team3": [passwords[2], 3],
-    "team4": [passwords[3], 4],
-    "team5": [passwords[4], 5],
-    "team6": [passwords[5], 6],
-    "team7": [passwords[6], 7],
-    "team8": [passwords[7], 8],
-    "team9": [passwords[8], 9],
-    "team10": [passwords[9], 10],
+    "Alberto247": [passwords[0], 1],
+    "mr96": [passwords[1], 2],
+    "matpro": [passwords[2], 3],
+    "0000matteo0000": [passwords[3], 4],
+    "hdesk": [passwords[4], 5],
+    "Matte23": [passwords[5], 6],
+    "SolidCinder7914": [passwords[6], 7],
+    "Xato": [passwords[7], 8],
+    "Drago_1729": [passwords[8], 9],
+    "Ravn": [passwords[9], 10],
     "team11": [passwords[10], 11],
     "team12": [passwords[11], 12],
     "team13": [passwords[12], 13],
@@ -26,6 +26,7 @@ const users = {
     "team15": [passwords[14], 15],
     "team16": [passwords[15], 16],
 }
+console.log(users);
 
 passport.use(new LocalStrategy(function verify(username, password, callback) {
     if (username in users && users[username][0] == password) {
