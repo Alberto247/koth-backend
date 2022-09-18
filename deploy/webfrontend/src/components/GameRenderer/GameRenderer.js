@@ -276,6 +276,10 @@ function GameRenderer(props) {
         clearInterval(intervalid);
         tick=0;
         intervalid=undefined;
+        crystal_tiles_seens = {}
+        crystal_handled = {}
+        deaths = []
+        
     }
 
     useEffect(() => {

@@ -4,15 +4,17 @@ import string
 import docker
 import time
 import json
-
-os.system("rm auth/*/*")
-os.system("mkdir auth")
 passwords=[]
-for x in range(1, 17):
-    os.system(f"mkdir auth/team{x}")
-    password=''.join(random.choice(string.ascii_letters + string.digits) for _ in range(32))
-    os.system(f"htpasswd -Bcb ./auth/team{x}/registry.password team{x} {password}")
-    passwords.append(password)
+if(not os.path.exists("passwords.json")):
+    for x in range(1, 17):
+        os.system(f"mkdir auth/team{x}")
+        password=''.join(random.choice(string.ascii_letters + string.digits) for _ in range(32))
+        os.system(f"htpasswd -Bcb ./auth/team{x}/registry.password team{x} {password}")
+        passwords.append(password)
+    json.dump(passwords, open("passwords.json", 'w'))
+    exit(0)
+else:
+    passwords=json.load(open("./passwords.json", "r"))
 
 for x in range(len(passwords)):
     print(f"Team {x+1} password {passwords[x]}")
@@ -28,4 +30,4 @@ for x in range(1, 17):
 client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest")
 
 
-json.dump(passwords, open("passwords.json", 'w'))
+
