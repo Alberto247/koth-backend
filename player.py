@@ -72,8 +72,8 @@ class RemotePlayer():
 
     async def send_tick(self, tick):
         data = pickle.dumps(tick)
-        await self.websocket.send(data)
         try:
+            await self.websocket.send(data)
             move = json.loads(await asyncio.wait_for(self.websocket.recv(), timeout=0.1))
             if("start" in move and len(move["start"]) == 3 and "end" in move and len(move["end"]) == 3):
                 return ((move["start"][0], move["start"][1], move["start"][2]), (move["end"][0], move["end"][1], move["end"][2]))
