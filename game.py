@@ -21,6 +21,7 @@ class Game:
 
     def __init__(self):
         self.map = Map()
+        # FIXME use dicts instead of lists to avoid errors due to non consecutive player ids
         self.player_spawns = []
         self.player_controllers = []
         self.crystal_spots = []
@@ -226,7 +227,7 @@ class Game:
                 while(mapcopy[start].get_owner_ID() != 0 or line == []):
                     start = random.choice(list(mapcopy.hash_map.values()))
                     line = hex_linedraw(start, x)
-                for _ in line:
+                for _ in line:  # FIXME this for does not update mapcopy and does not call bfs on the updated map, this might result in multiple unnecessary lines been drawn and slowness
                     if(self.map[_].get_point_type() == HEX_Type.WALL):
                         self.map[_].set_point_type(
                             HEX_Type.GRASS)  # and color!
@@ -241,17 +242,19 @@ class Game:
                     map[neighbour].set_owner_ID(0)
                     if(neighbour not in visited):
                         to_visit.append(neighbour)
-                        visited.append(neighbour)
+                        visited.append(neighbour)  # FIXME use set for better performance
+                        # FIXME to visit and visited appends might be in the wrong place
 
     def add_player(self, controller):
-        self.player_controllers.append(controller)
-        self.player_crystals.append([])
+        self.player_controllers.append(controller)  # FIXME use a dictionary to avoid errors due to non consecutive player ids
+        self.player_crystals.append([])  # FIXME use a dictionary to avoid errors due to non consecutive player ids
 
     # This function generates the map the player is supposed to see.
     def generate_player_map(self, player):
         player_map = copy.deepcopy(self.map) # Make a copy of the full map
-        self.player_controllers[player].seen_tiles = set(
-            player_map.hash_map.keys()) # And set all tiles to seen
+        # self.player_controllers[player].seen_tiles = set(
+        #     player_map.hash_map.keys()) # And set all tiles to seen
+        self.player_controllers[player].seen_tiles = set() # Set tiles as not seen
         for tile in player_map.hash_map.values(): # For every tile
             if(tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in tile.get_neighbors()])): # If not seen
                 if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
@@ -260,19 +263,22 @@ class Game:
                     tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                 tile.set_current_value(0)
                 tile.set_owner_ID(None)
-                self.player_controllers[player].seen_tiles.remove(
-                    tile.get_position_tuple()) # And remove from seen set
-        for crystal in self.crystal_spots: 
-            if(crystal.get_point_type() in self.player_crystals[player]):
-                player_map[crystal] = copy.deepcopy(self.map[crystal])
+                # self.player_controllers[player].seen_tiles.remove(  # FIXME adding tiles might be faster since at the start only 6 tiles should be visible
+                #     tile.get_position_tuple()) # And remove from seen set
+            else:
+                self.player_controllers[player].seen_tiles.add(tile.get_position_tuple()) # Add seen tile
+
+        for crystal in self.crystal_spots:
+            if(crystal.get_point_type() in self.player_crystals[player]):  # FIXME just add the tiles in self.player_crystals[player] on cristalcapture and loop them
+                player_map[crystal] = copy.deepcopy(self.map[crystal])  # FIXME using references might be helpfull here instead of copy or might be a vuln
                 self.player_controllers[player].seen_tiles.add(
                     crystal.get_position_tuple())
                 for x in crystal.get_neighbors():
-                    player_map[x] = copy.deepcopy(self.map[x])
+                    player_map[x] = copy.deepcopy(self.map[x])  # FIXME same here
                     self.player_controllers[player].seen_tiles.add(x)
-                    for y in player_map[x].get_neighbors():
-                        player_map[y] = copy.deepcopy(self.map[y])
-                        self.player_controllers[player].seen_tiles.add(Y)
+                    for y in player_map[x].get_neighbors():  # FIXME not skipping already seen tiles, mabe use coordinates instead of nested neighbours loop
+                        player_map[y] = copy.deepcopy(self.map[y])  # FIXME same here
+                        self.player_controllers[player].seen_tiles.add(y)
         return player_map
 
     def generate_all_players_maps(self):
@@ -282,17 +288,17 @@ class Game:
 
     # Takes all updates in the map and applies them to the players' maps
     def update_players_maps(self, moves):
-        players_edits = []
+        players_edits = []  # FIXME change to set to randomize order and coherence with the rest of edits logs
         for player in range(PLAYERS):  # for each player, apply all moves
             single_player_edits = []  # All tiles edited for this player, so we can send them over
             player_map = self.player_controllers[player].get_map()
             for move in moves:
                 for tile_tuple in move:  # For each start and end of move
-                    map_tile = self.map[tile_tuple]
-                    player_tile = player_map[tile_tuple]
+                    map_tile = self.map[tile_tuple]  # FIXME nothing catched potentially non existent tile if tuple is outside map bounds
+                    player_tile = player_map[tile_tuple]  # FIXME nothing catched potentially non existent tile if tuple is outside map bounds
                     # If player does not see that move
-                    if(map_tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in map_tile.get_neighbors()])):
-                        if(map_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
+                    if(map_tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in map_tile.get_neighbors()])):  # FIXME this does not check for crystal tiles   # FIXME maybe just check if one of the two move tiles are in the seen tiles set but i don'tknow it
+                        if(map_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):  # FIXME why is this done? if the player does not see the move should it already be unknown type?
                             player_tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
                         else:
                             player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
@@ -300,21 +306,21 @@ class Game:
                         player_tile.set_current_value(0)
                         player_tile.set_owner_ID(None)
                         # Add to the edited tiles the serialized version of the tile
-                        single_player_edits.append(player_tile.serializable())
-                        self.player_controllers[player].seen_tiles.discard(
+                        single_player_edits.append(player_tile.serializable())  # FIXME maybe check if the tile was visible before to avoid sending invisible moves and leaking map events
+                        self.player_controllers[player].seen_tiles.discard(  # FIXME maybe this is redundant
                             tile_tuple)  # Remove the tuple from the seen tiles
                     else:
                         # If player sees the tile, copy it from the map
                         player_map[tile_tuple] = copy.deepcopy(map_tile)
                         # add the tile from the map to the edits
                         single_player_edits.append(map_tile.serializable())
-                        self.player_controllers[player].seen_tiles.add(
+                        self.player_controllers[player].seen_tiles.add(  # FIXME maybe this is redundant, also might add visible tiles if someone manages to get here since this method does not check if move is valid
                             tile_tuple)  # add the tuple to the seen tiles
-                    for neighbour_tile in map_tile.get_neighbors():  # Now for each neighbour
+                    for neighbour_tile in map_tile.get_neighbors():  # Now for each neighbour  # FIXME this does not check if tile is already updated in the other move tile
                         map_neighbour_tile = self.map[neighbour_tile]
                         player_tile = player_map[neighbour_tile]
                         # if not seen
-                        if(map_neighbour_tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in map_neighbour_tile.get_neighbors()])):
+                        if(map_neighbour_tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in map_neighbour_tile.get_neighbors()])):  # FIXME mostly fame fixes as before
                             if(map_neighbour_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
                                 player_tile.set_point_type(
                                     HEX_Type.UNKNOWN_EMPTY)
@@ -335,7 +341,7 @@ class Game:
                                 map_neighbour_tile.serializable())  # add tile to edits
                             self.player_controllers[player].seen_tiles.add(
                                 neighbour_tile)  # add tile tuple to seen tiles
-            for crystal in self.crystal_spots: # For every crystal
+            for crystal in self.crystal_spots: # For every crystal  # FIXME same as in do_move also all updates do not check if already sent and if the cell actually changed
                 if(crystal.get_point_type() in self.player_crystals[player]): # If player has conquered that crystal in the past
                     player_map[crystal.get_position_tuple()] = copy.deepcopy( # Make it visible
                         self.map[crystal.get_position_tuple()])
@@ -352,9 +358,10 @@ class Game:
                             single_player_edits.append(
                                 self.map[y].serializable())
                             self.player_controllers[player].seen_tiles.add(y)
-            for tile_tuple in self.player_controllers[player].seen_tiles: # For every seen tiles, update the value on it
+            for tile_tuple in self.player_controllers[player].seen_tiles: # For every seen tiles, update the value on it  # FIXME this is already done later in update_map, consider moving this in that function and calculating apdates after that
                 tile = player_map[tile_tuple]
-                if(tile.get_owner_ID() != None):
+                # if(tile.get_owner_ID() != None):  # FIXME use is not None
+                if(tile.get_owner_ID() is not None):
                     if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                         tile.set_current_value(tile.get_current_value()+1)
                     elif(self.current_tick % 25 == 0):
@@ -395,23 +402,34 @@ class Game:
                 ts.append(self.player_controllers[player].tick(
                     self.current_tick))  # Send only updates to every player
         if(self.last_tick_deads):
-            self.last_tick_deads = False
-        moves = await asyncio.gather(*ts)  # Wait for all moves
+            self.last_tick_deads = False  # FIXME if this is used in the coroutines stored in ts this will lead to a race condition, maybe move after await
+        moves = await asyncio.gather(*ts)  # Wait for all moves  # FIXME coroutine errors are not catched, consider return_exceptions=False
         self.current_tick += 1  # Next tick
         for player_move in moves:
             edited_hex.add(player_move[0])  # This is for the web app
             edited_hex.add(player_move[1])
         for player in range(PLAYERS):
-            if(self.player_controllers[player].dead == False):
+            if(self.player_controllers[player].dead == False):  # FIXME maybe do not call tick_map and tick to avoid waiting untill timeout if dead players stop responding, since thelist of awaitables can't have holes because of the player id logic consider making a dummy call like lambda: [] that returns empty moves and ends instantly
                 edited_hex |= self.do_move(
                     player, moves[player])  # Do all moves
         # Update every player's map and return updated tiles
-        updates = self.update_players_maps(moves)
+        updates = self.update_players_maps(moves)  # FIXME sending updates to all players will leak start and end tiles for all moves in not visible tiles
         for player in range(PLAYERS):
             if(self.player_controllers[player].dead == False):
                 # Set update to be sent to players at next tick
                 self.player_controllers[player].set_update(updates[player])
         edited_hex |= self.update_map()  # Update global map count on every tile
+        # FIXME consider updating the actualmap completely before any of the player maps:
+        # FIXME do_move should filter the moves, calculate edited_hex
+        # FIXME update_map should then be run and calculate its edited_hex and be called at the end but inside do_move (maybe rename do_move to update_map) so that updates already include new troups
+        # FIXME after that for each edited_hex calculate the players that actually own a tile near or at the edited tile and add or remove visible tiles accordingly taking crystals into account
+        # FIXME while doing this in a list of lists (alist per player) record visibility changes when a visible tile was in a player's visible_tiles_set and was actually removed
+        # FIXME at this point visible_tiles_sets are correctly updated
+        # FIXME update_players_maps shoulditerate for all players then should iterate over edited_hex and not moves,
+        # FIXME if edited tile is in player's visible_tiles_set then add this tile to the updates
+        # FIXME since both edited_hex and visible_tiles_set are sets something like edited_hex && visible_tiles_set could be done
+        # FIXME include the recorded player visibility deletion previously recorded and sent custom updates to each player
+        # FIXME this should simplify somewhat the logic and make it faster iterating only when needed
         self.history.append(self.map.serializable_partial(
             edited_hex))  # Add to web map history
     '''
@@ -433,7 +451,7 @@ class Game:
         print(self.current_tick)
         moves = []
         edited_hex = set()
-        if(self.last_tick_deads):
+        if(self.last_tick_deads):  # TODO verify this can only be true
             self.last_tick_deads = False
             self.generate_all_players_maps()
         for player in range(PLAYERS):
@@ -450,7 +468,7 @@ class Game:
         self.history.append(self.map.serializable_partial(edited_hex))
 
     def run(self): # Use this for local testing
-        for x in range(PLAYERS):  
+        for x in range(PLAYERS):
             self.add_player(Player(x, "./bot.py")) # Load all bots, they are all equal, feel free to change this if you want to experiment with different types of bots
         print("Starting simulation")
         self.generate_all_players_maps() # Generate initial maps
@@ -470,7 +488,7 @@ class Game:
         for x in range(PLAYERS):
             try:
                 # Connect to players
-                await asyncio.wait_for(self.player_controllers[x].connect(), timeout=5.0)
+                await asyncio.wait_for(self.player_controllers[x].connect(), timeout=5.0)  # FIXME not parallel, will wait up to 5s * player count
             except Exception:
                 print(f"Player {x} failed to connect!")
                 self.player_controllers[x].dead = True # Sorry buddy
@@ -529,7 +547,7 @@ class Game:
             amount = hex_start.get_current_value()-1
             hex_start.set_current_value(1)
             if(hex_end.get_owner_ID() == None):
-                if(hex_end.get_point_type() != HEX_Type.FORT):
+                if(hex_end.get_point_type() != HEX_Type.FORT):  # FIXME this will not support trups in non owned tiles myabe just check values alwais. generalizing this checks
                     hex_end.set_owner_ID(player)
                     hex_end.set_current_value(amount)
                 else:
@@ -564,7 +582,8 @@ class Game:
                         hex_end.set_current_value(
                             abs(hex_end.get_current_value()))
 
-            if(hex_end.get_owner_ID() == player and (not hex_end.get_point_type() in self.player_crystals[player]) and hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
+            # if(hex_end.get_owner_ID() == player and (not hex_end.get_point_type() in self.player_crystals[player]) and hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):  # FIXME duplicate not already owned player ristal check
+            if(hex_end.get_owner_ID() == player and hex_end.get_point_type() not in self.player_crystals[player] and hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL]):
                 self.player_crystals[player].append(hex_end.get_point_type())
         return edited_hex
 
@@ -572,7 +591,8 @@ class Game:
     def update_map(self):
         edited_hex = set()
         for tile in self.map.hash_map.values():
-            if(tile.get_owner_ID() != None):
+            # if(tile.get_owner_ID() != None):  # FIXME use is not None
+            if(tile.get_owner_ID() is not None):
                 if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                     tile.set_current_value(tile.get_current_value()+1)
                     edited_hex.add(tile.get_position_tuple())
@@ -588,4 +608,6 @@ class Game:
         return self.player_spawns
 
     def json_serialize_history(self, filename):
-        json.dump(self.history, open(filename, 'w'))
+        # json.dump(self.history, open(filename, 'w'))  # FIXME: this file is never closed
+        with open(filename, 'w') as f:
+            json.dump(self.history, f)
