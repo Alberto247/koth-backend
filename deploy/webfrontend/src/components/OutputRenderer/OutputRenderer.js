@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { apiGetGameRoundOutput } from '../../api.js'
-import {decode as base64_decode} from 'base-64';
-import "./OutputRenderer.css"
+import { decode as base64_decode } from 'base-64';
+import { LazyLog } from 'react-lazylog';
 
 function OutputRenterer(props) {
     let { round, game } = useParams();
@@ -10,19 +10,20 @@ function OutputRenterer(props) {
     const [dockerOutput, setDockerOutput] = useState("");
     props.setTopText("");
     useEffect(() => {
-        async function loadDockerOutput(){
-            let txt=await apiGetGameRoundOutput(game, round);
-            if(txt.length<=0){
+        async function loadDockerOutput() {
+            let txt = await apiGetGameRoundOutput(game, round);
+            if (txt.length <= 0) {
                 navigate("/");
             }
             setDockerOutput(base64_decode(txt.slice(1, -1)));
         }
         loadDockerOutput();
     }, [])
-    const output = dockerOutput.split("\n").map((x)=><>{x}<br></br></>)
-    console.log(output)
-    console.log(dockerOutput)
-    return <pre style={{marginLeft:"100px", maxWidth:"90vw", overflowY:"scroll", overflowX:"scroll", paddingLeft:"10px", marginRight:"100px", marginTop:"50px", maxHeight:"70vh", height:"70vh", border: "solid", backgroundColor: "lightgray", display:"flex"}}><div style={{display:"inline-block", alignSelf:"flex-end"}}>{output}</div></pre>
+    let output = dockerOutput.split("\n")
+    if(dockerOutput.length==0){
+        return <></>;
+    }
+    return <div style={{width:"100%", height: "90vh", padding: "100px"}}><LazyLog text={output.join("\n")} scrollToLine={dockerOutput.length+1} /></div>
 }
 
 export default OutputRenterer;
