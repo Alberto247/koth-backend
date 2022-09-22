@@ -76,9 +76,10 @@ def handle_round(round_ID):
         containers["backend"].remove()
         for team in containers["players"].keys():
             try:
+                print(f"Killing team {team}")
                 containers["players"][team].kill()
-            except Exception:
-                pass
+            except Exception as ex:
+                print(ex)
             f=open(f"./results/{round_ID}/logs/team-{team}-game-{game}.logs", "w")
             f.write(containers["players"][team].logs(tail=1000).decode())
             f.close()
@@ -139,7 +140,7 @@ def handle_round(round_ID):
     f.close()
 
 
-for x in range(next_round, 100):
+for x in range(next_round, 100000000000):
     try:
         handle_round(x)
         while(int(time.time())%ROUND_LENGTH>10):
