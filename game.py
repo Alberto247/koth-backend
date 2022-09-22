@@ -250,8 +250,7 @@ class Game:
     # This function generates the map the player is supposed to see.
     def generate_player_map(self, player):
         player_map = copy.deepcopy(self.map) # Make a copy of the full map
-        self.player_controllers[player].seen_tiles = set(
-            player_map.hash_map.keys()) # And set all tiles to seen
+        self.player_controllers[player].seen_tiles = set() # Set all tiles as not seen
         for tile in player_map.hash_map.values(): # For every tile
             if(tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in tile.get_neighbors()])): # If not seen
                 if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
@@ -260,8 +259,8 @@ class Game:
                     tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                 tile.set_current_value(0)
                 tile.set_owner_ID(None)
-                self.player_controllers[player].seen_tiles.remove(
-                    tile.get_position_tuple()) # And remove from seen set
+            else:
+                self.player_controllers[player].seen_tiles.add(tile.get_position_tuple()) # Add seen tile
         for crystal in self.crystal_spots: 
             if(crystal.get_point_type() in self.player_crystals[player]):
                 player_map[crystal] = copy.deepcopy(self.map[crystal])
@@ -354,7 +353,7 @@ class Game:
                             self.player_controllers[player].seen_tiles.add(y)
             for tile_tuple in self.player_controllers[player].seen_tiles: # For every seen tiles, update the value on it
                 tile = player_map[tile_tuple]
-                if(tile.get_owner_ID() != None):
+                if(tile.get_owner_ID() is not None):
                     if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                         tile.set_current_value(tile.get_current_value()+1)
                     elif(self.current_tick % 25 == 0):
@@ -575,7 +574,7 @@ class Game:
                         hex_end.set_current_value(
                             abs(hex_end.get_current_value()))
 
-            if(hex_end.get_owner_ID() == player and (not hex_end.get_point_type() in self.player_crystals[player]) and hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
+            if(hex_end.get_owner_ID() == player and hex_end.get_point_type() in [HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL] and hex_end.get_point_type() not in self.player_crystals[player]):
                 self.player_crystals[player].append(hex_end.get_point_type())
         return edited_hex
 
@@ -583,7 +582,7 @@ class Game:
     def update_map(self):
         edited_hex = set()
         for tile in self.map.hash_map.values():
-            if(tile.get_owner_ID() != None):
+            if(tile.get_owner_ID() is not None):
                 if(tile.get_point_type() in [HEX_Type.FLAG, HEX_Type.FORT]):
                     tile.set_current_value(tile.get_current_value()+1)
                     edited_hex.add(tile.get_position_tuple())
