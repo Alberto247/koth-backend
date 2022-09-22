@@ -34,7 +34,7 @@ def handle_game(players, history, scoreboard, prefix):
     player_images={}
     print("Creating player containers")
     for player in players:
-        player_images[player]=client.containers.run(f"team{player}.registry.alberto247.xyz:7394/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True) #TODO: limits
+        player_images[player]=client.containers.run(f"team{player}.registry.alberto247.xyz:7394/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True, storage_opt={"size":"10G"}) #TODO: limits
     print("Creating backend container")
     backend=client.containers.run("kothbackend:latest", name=f"{prefix}-kothbackend", environment=[f"PLAYERS={','.join([str(_) for _ in players])}", "HISTORY_PATH="+history, "SCOREBOARD_PATH="+scoreboard], volumes=[os.getcwd()+'/results:/results'], detach=True)
     for player in players:
@@ -54,6 +54,7 @@ def handle_round(round_ID):
     game4=players[12:]
     games=[game1, game2, game3, game4]
     games_containers=[]
+    failed=False
     for game in range(4):
         print(f"Preparing game {game} for round {round_ID} with players {games[game]}")
         try:
@@ -79,12 +80,17 @@ def handle_round(round_ID):
             except Exception:
                 pass
             f=open(f"./results/{round_ID}/logs/team-{team}-game-{game}.logs", "w")
-            f.write(containers["players"][team].logs().decode())
+            f.write(containers["players"][team].logs(tail=1000).decode())
             f.close()
             containers["players"][team].remove()
-        f=open(f"./results/{round_ID}/scoreboard_game_{game}.json", "r")
-        scoreboards.append(json.load(f))
-        f.close()
+        try:
+            f=open(f"./results/{round_ID}/scoreboard_game_{game}.json", "r")
+            scoreboards.append(json.load(f))
+            f.close()
+        except Exception:
+            failed=True
+    if(failed):
+        return
     finalists=[]
     for scoreboard in scoreboards:
         finalists.append(scoreboard.pop(0)["real_ID"])
@@ -105,9 +111,14 @@ def handle_round(round_ID):
         f.write(containers["players"][team].logs().decode())
         f.close()
         containers["players"][team].remove()
-    f=open(f"./results/{round_ID}/scoreboard_game_final.json", "r")
-    scoreboard_final=json.load(f)
-    f.close()
+    try:
+        f=open(f"./results/{round_ID}/scoreboard_game_final.json", "r")
+        scoreboard_final=json.load(f)
+        f.close()
+    except Exception:
+        failed=True
+    if(failed):
+        return
     final_scoreboard={1:[scoreboard_final[0]], 2:[scoreboard_final[1]], 3:[scoreboard_final[2]], 4:[scoreboard_final[3]]}
     final_scoreboard[5]=[scoreboard[0] for scoreboard in scoreboards]
     final_scoreboard[6]=[scoreboard[1] for scoreboard in scoreboards]

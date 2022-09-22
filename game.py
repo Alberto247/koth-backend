@@ -362,6 +362,15 @@ class Game:
             players_edits.append(single_player_edits)
         return players_edits # Returns a list of list of updates to be sent to players
 
+    def verify_moves(self, moves):
+        for move in range(len(moves)):
+            if(len(moves[move])!=2):
+                moves[move]=((0,0,0), (0,0,0))
+            for tile in range(2):
+                if(moves[move][tile] not in self.map):
+                    moves[move]=((0,0,0), (0,0,0))
+
+
     '''
       This function handles a single tick in production environment, it contains a lot of tricks to reduce the data sent, in an effort to increase performances
       Notice that it may be hard to understand as the tick is updated during the function. Here is a better description of the inner working of the function
@@ -397,6 +406,7 @@ class Game:
         if(self.last_tick_deads):
             self.last_tick_deads = False
         moves = await asyncio.gather(*ts)  # Wait for all moves
+        self.verify_moves(moves)
         self.current_tick += 1  # Next tick
         for player_move in moves:
             edited_hex.add(player_move[0])  # This is for the web app
@@ -442,6 +452,7 @@ class Game:
             moves.append(player_move)
             edited_hex.add(player_move[0])
             edited_hex.add(player_move[1])
+        self.verify_moves(moves)
         for player in range(PLAYERS):
             if(self.player_controllers[player].dead == False):
                 edited_hex |= self.do_move(player, moves[player])

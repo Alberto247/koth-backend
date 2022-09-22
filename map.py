@@ -20,6 +20,9 @@ class Map:
         if(type(key) is Hex):
             return self.hash_map[key.get_position_tuple()]
         return self.hash_map[key]
+    
+    def __contains__(self, key):
+        return key in self.hash_map
 
     def serializable(self):
         return self.serializable_partial(self.hash_map.keys())
