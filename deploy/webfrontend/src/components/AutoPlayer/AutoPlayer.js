@@ -8,7 +8,7 @@ import { FaRegFlag, FaMountain, FaFortAwesome } from 'react-icons/fa';
 import {GiCrystalGrowth}from 'react-icons/gi';
 import Form from 'react-bootstrap/Form'
 import Table from 'react-bootstrap/Table';
-import { teams as ID_map } from '../../config.js';
+import { teams as ID_map, SIDE } from '../../config.js';
 
 const POINT_TYPES = {
     UNKNOWN_OBJECT: -2,
@@ -183,7 +183,7 @@ function HexagonalGrid(props) {
     }
 
     return (<div>
-        <HexGrid style={{ width: "100%", height: "100%" }} viewBox="0 0 100 100">
+        <HexGrid style={{ width: "100%", height: "100%" }} viewBox="0 -20 100 120">
             {/* Grid with manually inserted hexagons */}
             <Layout size={{ x: 2, y: 2 }} flat={false} spacing={1} origin={{ x: 50, y: 35 }}>
                 {hexagons}
@@ -391,7 +391,7 @@ function AutoPlayer(props){
         let round_scoreboard=await apiGetGameRoundScoreboard(game, round);
         let gameHistory = await apiGetGameRoundHistory(game, round);
         let hexagonMap = {};
-        const hexagons = GridGenerator.hexagon(10);
+        const hexagons = GridGenerator.hexagon(SIDE);
         for (const hexagon of hexagons) {
             hexagonMap[[hexagon.q, hexagon.r, hexagon.s].toString()] = { "hex": hexagon }
         }

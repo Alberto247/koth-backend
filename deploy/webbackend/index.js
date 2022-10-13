@@ -19,12 +19,8 @@ const users = {
     "Xato": [passwords[7], 8],
     "Drago_1729": [passwords[8], 9],
     "Ravn": [passwords[9], 10],
-    "team11": [passwords[10], 11],
-    "team12": [passwords[11], 12],
-    "team13": [passwords[12], 13],
-    "team14": [passwords[13], 14],
-    "team15": [passwords[14], 15],
-    "team16": [passwords[15], 16],
+    "Giotino": [passwords[10], 11],
+    "team12": [passwords[11], 12]
 }
 console.log(users);
 
@@ -68,7 +64,7 @@ app.use(session({
     proxy: true, // Crucial
     resave: false,
     saveUninitialized: true,
-    secret: 'just a secret',
+    secret: 'a4cKf5ukhW1eMcmGCPI0a3xTTYxhwTo5o8oV70iG9Q5vEDcXNt',
 }));
 app.use(passport.authenticate('session'))
 
@@ -104,6 +100,15 @@ app.get("/me", isLoggedIn, async (req, res) => {
         res.status(200).json({ ID: req.user.ID });
     }
     catch (err) {
+        res.status(500).end();
+    }
+})
+
+app.get("/scoreboard", async (req, res)=>{
+    try{
+        let rawdata = fs.readFileSync("/results/current_scoreboard.json");
+        res.status(200).json(JSON.parse(rawdata));
+    } catch (err) {
         res.status(500).end();
     }
 })

@@ -4,7 +4,7 @@ import { Play } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import {apiGetGameRoundHistory, apiGetGameRoundScoreboard} from "../../api.js"
 import { GridGenerator } from 'react-hexgrid';
-import { teams as ID_map } from '../../config.js';
+import { teams as ID_map, SIDE } from '../../config.js';
 
 const PLAYER_COLORS = { null: "none", 1: "#008000", 2: "#0000FF", 3: "#FF0000", 4: "#00FFFF", 5: "#FF00FF", 6: "#FFFF00", 7: "salmon", 8: "darkorange", 9: "lime", 10: "violet", 11: "pink", 12: "grey", 13: "royalblue", 14: "palegreen", 15: "peru", 16: "orangered" }
 
@@ -60,7 +60,7 @@ function GamesTableRow(props) {
         let round_scoreboard=await apiGetGameRoundScoreboard(game, round);
         let gameHistory = await apiGetGameRoundHistory(game, round);
         let hexagonMap = {};
-        const hexagons = GridGenerator.hexagon(10);
+        const hexagons = GridGenerator.hexagon(SIDE);
         for (const hexagon of hexagons) {
             hexagonMap[[hexagon.q, hexagon.r, hexagon.s].toString()] = { "hex": hexagon }
         }

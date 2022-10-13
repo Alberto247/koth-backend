@@ -8,7 +8,7 @@ import {GiCrystalGrowth}from 'react-icons/gi';
 
 import { HexGrid, Layout, Hexagon, Text, GridGenerator } from 'react-hexgrid';
 import { apiGetGameRoundHistory, apiGetGameRoundScoreboard } from '../../api';
-import { teams as ID_map } from '../../config.js';
+import { teams as ID_map, SIDE } from '../../config.js';
 
 const POINT_TYPES = {
     UNKNOWN_OBJECT: -2,
@@ -183,7 +183,7 @@ function HexagonalGrid(props) {
     }
 
     return (<div>
-        <HexGrid style={{ width: "100%", height: "100%" }} viewBox="0 0 100 100">
+        <HexGrid style={{ width: "100%", height: "100%" }} viewBox="0 -20 100 120">
             {/* Grid with manually inserted hexagons */}
             <Layout size={{ x: 2, y: 2 }} flat={false} spacing={1} origin={{ x: 50, y: 35 }}>
                 {hexagons}
@@ -266,7 +266,7 @@ function GameRenderer(props) {
     const navigate = useNavigate();
     const [speed, setSpeed] = useState(50);
     const [disabled, setDisabled] = useState(false);
-    const hexagons = GridGenerator.hexagon(10);
+    const hexagons = GridGenerator.hexagon(SIDE);
     const [shownTick, setShownTick] = useState(0);
     const [pov, setPov] = useState(-1);
 

@@ -3,8 +3,9 @@ import docker
 import os
 import random
 import time
-PLAYERS=16
+PLAYERS=12
 ROUND_LENGTH=5*60
+POSITIONS_POINTS={1:10, 2:8, 3:5, 4:3, 5:2, 6:1, 7:0}
 
 passwords=json.load(open("passwords.json", "r"))
 networks={}
@@ -20,6 +21,12 @@ else:
     if(len(data)>0):
         next_round=max(data)+1
 
+if(not os.path.exists("./results/current_scoreboard.json")):
+    f=open("./results/current_scoreboard.json", "w")
+    data=[{"teamId":_, "score":0} for _ in range(PLAYERS)]
+    f.write(json.dumps(data))
+    f.close()
+
 
 def recreate_networks():
     client.networks.prune()
@@ -34,7 +41,7 @@ def handle_game(players, history, scoreboard, prefix):
     player_images={}
     print("Creating player containers")
     for player in players:
-        player_images[player]=client.containers.run(f"team{player}.registry.alberto247.xyz:7394/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True, storage_opt={"size":"10G"}) #TODO: limits
+        player_images[player]=client.containers.run(f"team{player}.registry.alberto247.xyz:7394/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True) #TODO: limits
     print("Creating backend container")
     backend=client.containers.run("kothbackend:latest", name=f"{prefix}-kothbackend", environment=[f"PLAYERS={','.join([str(_) for _ in players])}", "HISTORY_PATH="+history, "SCOREBOARD_PATH="+scoreboard], volumes=[os.getcwd()+'/results:/results'], detach=True)
     for player in players:
@@ -46,12 +53,12 @@ def handle_round(round_ID):
     recreate_networks()
     print("Updating images")
     update_images()
-    players=list(range(1, 17))
+    players=list(range(1, 13))
     random.shuffle(players)
-    game1=players[:4]
-    game2=players[4:8]
-    game3=players[8:12]
-    game4=players[12:]
+    game1=players[:3]
+    game2=players[3:6]
+    game3=players[6:9]
+    game4=players[9:]
     games=[game1, game2, game3, game4]
     games_containers=[]
     failed=False
@@ -123,7 +130,6 @@ def handle_round(round_ID):
     final_scoreboard={1:[scoreboard_final[0]], 2:[scoreboard_final[1]], 3:[scoreboard_final[2]], 4:[scoreboard_final[3]]}
     final_scoreboard[5]=[scoreboard[0] for scoreboard in scoreboards]
     final_scoreboard[6]=[scoreboard[1] for scoreboard in scoreboards]
-    final_scoreboard[7]=[scoreboard[2] for scoreboard in scoreboards]
     f=open(f"./results/{round_ID}/scoreboard_final.json", "w")
     f.write(json.dumps(final_scoreboard))
     f.close()
@@ -133,6 +139,19 @@ def handle_round(round_ID):
     data.append(round_ID)
     f.close()
     f=open(f"./results/complete_rounds.json", "w")
+    f.write(json.dumps(data))
+    f.close()
+    f=open(f"./results/current_scoreboard.json", "r")
+    data=json.loads(f.read())
+    f.close()
+    for position in final_scoreboard.keys():
+        for player in final_scoreboard[position]:
+            playerID=player["real_ID"]
+            points=POSITIONS_POINTS[position]
+            for _ in data:
+                if(_["teamId"]==playerID):
+                    _["score"]+=points
+    f=open(f"./results/current_scoreboard.json", "w")
     f.write(json.dumps(data))
     f.close()
     f=open(f"./results/{round_ID}/available_games.json", "w")

@@ -6,7 +6,7 @@ import time
 import json
 passwords=[]
 if(not os.path.exists("passwords.json")):
-    for x in range(1, 17):
+    for x in range(1, 13):
         os.system(f"mkdir auth/team{x}")
         password=''.join(random.choice(string.ascii_letters + string.digits) for _ in range(32))
         os.system(f"htpasswd -Bcb ./auth/team{x}/registry.password team{x} {password}")
@@ -21,7 +21,7 @@ for x in range(len(passwords)):
 
 time.sleep(3)
 client=docker.from_env()
-for x in range(1, 17):
+for x in range(1, 13):
     print(f"Setting up for team {x}")
     print(client.images.build(path="../", dockerfile="Dockerfile.bot", tag=f"team{x}.registry.alberto247.xyz:7394/bot/bot:latest"))
     os.system(f"docker login https://team{x}.registry.alberto247.xyz:7394 -u team{x} -p {passwords[x-1]}")

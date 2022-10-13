@@ -121,46 +121,46 @@ services:
         volumes:
           - ./auth/team12:/auth
         hostname: registry_team12
-    registry_team13:
-        image: "registry:latest"
-        environment:
-          REGISTRY_AUTH: htpasswd
-          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team13.registry.alberto247.xyz:7394"
-        volumes:
-          - ./auth/team13:/auth
-        hostname: registry_team13
-    registry_team14:
-        image: "registry:latest"
-        environment:
-          REGISTRY_AUTH: htpasswd
-          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team14.registry.alberto247.xyz:7394"
-        volumes:
-          - ./auth/team14:/auth
-        hostname: registry_team14
-    registry_team15:
-        image: "registry:latest"
-        environment:
-          REGISTRY_AUTH: htpasswd
-          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team15.registry.alberto247.xyz:7394"
-        volumes:
-          - ./auth/team15:/auth
-        hostname: registry_team15
-    registry_team16:
-        image: "registry:latest"
-        environment:
-          REGISTRY_AUTH: htpasswd
-          REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
-          REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team16.registry.alberto247.xyz:7394"
-        volumes:
-          - ./auth/team16:/auth
-        hostname: registry_team16
+    # registry_team13:
+    #     image: "registry:latest"
+    #     environment:
+    #       REGISTRY_AUTH: htpasswd
+    #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+    #       REGISTRY_HTTP_HOST: "https://team13.registry.alberto247.xyz:7394"
+    #     volumes:
+    #       - ./auth/team13:/auth
+    #     hostname: registry_team13
+    # registry_team14:
+    #     image: "registry:latest"
+    #     environment:
+    #       REGISTRY_AUTH: htpasswd
+    #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+    #       REGISTRY_HTTP_HOST: "https://team14.registry.alberto247.xyz:7394"
+    #     volumes:
+    #       - ./auth/team14:/auth
+    #     hostname: registry_team14
+    # registry_team15:
+    #     image: "registry:latest"
+    #     environment:
+    #       REGISTRY_AUTH: htpasswd
+    #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+    #       REGISTRY_HTTP_HOST: "https://team15.registry.alberto247.xyz:7394"
+    #     volumes:
+    #       - ./auth/team15:/auth
+    #     hostname: registry_team15
+    # registry_team16:
+    #     image: "registry:latest"
+    #     environment:
+    #       REGISTRY_AUTH: htpasswd
+    #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+    #       REGISTRY_HTTP_HOST: "https://team16.registry.alberto247.xyz:7394"
+    #     volumes:
+    #       - ./auth/team16:/auth
+    #     hostname: registry_team16
     
     backend:
         build: "./webbackend"
@@ -193,7 +193,7 @@ services:
           - registry_team10
           - registry_team11
           - registry_team12
-          - registry_team13
-          - registry_team14
-          - registry_team15
-          - registry_team16
+          # - registry_team13
+          # - registry_team14
+          # - registry_team15
+          # - registry_team16
