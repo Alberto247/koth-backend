@@ -104,15 +104,6 @@ app.get("/me", isLoggedIn, async (req, res) => {
     }
 })
 
-app.get("/scoreboard", async (req, res)=>{
-    try{
-        let rawdata = fs.readFileSync("/results/current_scoreboard.json");
-        res.status(200).json(JSON.parse(rawdata));
-    } catch (err) {
-        res.status(500).end();
-    }
-})
-
 app.get("/games", async (req, res) => {
     try {
         let rawdata = fs.readFileSync('/results/complete_rounds.json');

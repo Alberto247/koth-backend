@@ -3,9 +3,7 @@ import docker
 import os
 import random
 import time
-PLAYERS=12
-ROUND_LENGTH=5*60
-POSITIONS_POINTS={1:10, 2:8, 3:5, 4:3, 5:2, 6:1, 7:0}
+from config_game import *
 
 passwords=json.load(open("passwords.json", "r"))
 networks={}
@@ -23,6 +21,12 @@ else:
 
 if(not os.path.exists("./results/current_scoreboard.json")):
     f=open("./results/current_scoreboard.json", "w")
+    data=[{"teamId":_, "score":0} for _ in range(PLAYERS)]
+    f.write(json.dumps(data))
+    f.close()
+
+if(not os.path.exists("./results/user_scoreboard.json")):
+    f=open("./results/user_scoreboard.json", "w")
     data=[{"teamId":_, "score":0} for _ in range(PLAYERS)]
     f.write(json.dumps(data))
     f.close()
@@ -133,7 +137,6 @@ def handle_round(round_ID):
     f=open(f"./results/{round_ID}/scoreboard_final.json", "w")
     f.write(json.dumps(final_scoreboard))
     f.close()
-    print("Scoreboard written to file")
     f=open(f"./results/complete_rounds.json", "r")
     data=json.loads(f.read())
     data.append(round_ID)
@@ -151,12 +154,27 @@ def handle_round(round_ID):
             for _ in data:
                 if(_["teamId"]==playerID):
                     _["score"]+=points
-    f=open(f"./results/current_scoreboard.json", "w")
+    f=open(f"./results/user_scoreboard.json", "w")
     f.write(json.dumps(data))
     f.close()
+    if(FREEZE_ROUND>round_ID):
+        f=open(f"./results/user_scoreboard.json", "r")
+        data=json.loads(f.read())
+        f.close()
+        for position in final_scoreboard.keys():
+            for player in final_scoreboard[position]:
+                playerID=player["real_ID"]
+                points=POSITIONS_POINTS[position]
+                for _ in data:
+                    if(_["teamId"]==playerID):
+                        _["score"]+=points
+        f=open(f"./results/user_scoreboard.json", "w")
+        f.write(json.dumps(data))
+        f.close()
     f=open(f"./results/{round_ID}/available_games.json", "w")
     f.write(json.dumps(["0", "1", "2", "3", "final"]))
     f.close()
+    print("Scoreboard written to file")
 
 
 for x in range(next_round, 100000000000):
