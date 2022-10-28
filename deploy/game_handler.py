@@ -35,7 +35,7 @@ if(not os.path.exists("./results/user_scoreboard.json")):
 def recreate_networks():
     client.networks.prune()
     for x in range(1, PLAYERS+1):
-        networks[x]=client.networks.create(f"koth-client{x}", driver="bridge")
+        networks[x]=client.networks.create(f"koth-client{x}", driver="bridge", internal=True)
 
 def update_images():
     for x in range(PLAYERS):
