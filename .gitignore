@@ -5,6 +5,5 @@ global/*
 old-frontend/node_modules
 old-frontend/history.json
 debug/*
-deploy/auth/*
 deploy/results/*
 deploy/webbackend/node_modules
