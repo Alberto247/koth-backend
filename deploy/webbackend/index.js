@@ -7,7 +7,7 @@ const session = require('express-session');
 const fs = require('fs');
 
 const PORT = 3001;
-const passwords=["ytSIO8IjtEzPq88rqK9nGR1F6vBnDjaC", "JWWiiewlflUAEPxeegY1QnJUlEFpZqty", "GGC38aq8lHxbrabL4q6G24eXUUdrQDeM", "ZZrB5M0ypa9Bb5pUjUPjlw81LQk5ufzI", "t14fuoepH1p6fJUHZrISw9wERfuiA5W2", "kB1C0Q7zdbAcA9gfIa36CZJgKu681gsD", "6TezQR5Nm4aAaQMC7OSNBwlkKuUXHo1i", "Qlg615XfjnxT8W7CZUvcHccOc39e7Ur0", "nvaZgIvoJnMHkIfn7rSUJY7porDNW9OV", "CQVhZNyCks33eTLhyI4FCFH2LSUbzAEK", "V7h5GBLqNpsKM9rk2hSWbKu2FTfEKYu8", "6hLQVNQaq1KXf3pLu6ALvfWHNp9HeFQM", "5TWEKVxt1CMh3S4kQE2PDR6c3gu4oPlJ", "K4qWo4Qxip8YBcIIIhEIALN2WTqn5YvB", "BBIUV6GyjRpE8dI3ZEg7KDjGh1le2aB5", "h4A8XwTwtIpFxE00kttqHPVjnW34m2Y8"]
+const passwords=["ho6lJkPpV8bCL6UWCuhg46laqQilQ2pA", "X5143kmWIGP1bTUjlVxGmHkPK20ZXgVM", "7Uv1zkVbnOOirpvfbEiklCE4S31yB5Po", "nVYkLlHSsTrEuzXwtMyeFesBo3KtI0E8", "0ldxzW69zlDI8FJzMLinHx960UDy43qK", "ZSevNEQxOqfoJ33A0yqo2inYvZaPv1eS", "O11OufEFRRGAr3V5e0n86yJn8q6UI0bI", "U9LSASDZfsi2TyVSgcW984nU8GiguwK7", "hLS3WO8RDqqgA03UJkld0TWY74Ba7m23", "6UFaTv2eVAGR34FZnRQyucrWjSIx0N1U", "P79Oyfl9LVLhb0bE3mslkezu9c9inzr2", "jcvpk7X4O5u3HsR6BofXqv0XuyZJrpd5"]
 const users = {
     "Kalmarunionen": [passwords[0], 1],
     "organizers": [passwords[1], 2],
