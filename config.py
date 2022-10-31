@@ -12,16 +12,16 @@ MIN_FORT_COST = 40 # Minimum cost to capture a fort
 MAX_FORT_COST = 50 # Maximum cost to capture a fort
 SIMULATION_LENGTH = 1000 # Maximum length of the game
 DEBUG = False  # True loads bots from their classes files, without timeout on the moves. False works with the websockets as in the infrastructure. To test please use Debug=True
-ID_MAP = {1: "Alberto247", # Used only to map colors
-          2: "mr96",
-          3: "matpro",
-          4: "0000matteo0000",
-          5: "hdesk",
-          6: "Matte23",
-          7: "SolidCinder7914",
-          8: "Xato",
-          9: "Drago_1729",
-          10: "Ravn",
-          11: "Giotino",
-          12: "team12"
+ID_MAP = {1: "Kalmarunionen", # Used only to map colors
+          2: "organizers",
+          3: "fibonhack",
+          4: "Water Paddler",
+          5: "bootplug",
+          6: "Tower of Hanoi",
+          7: "gli sloveni",
+          8: "srdnlen",
+          9: "MadrHacks",
+          10: "NoPwnIntended",
+          11: "HaverageBhackariEnjoyers",
+          12: "team 12"
           }

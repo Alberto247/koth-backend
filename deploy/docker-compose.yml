@@ -7,7 +7,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team1.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team1.registry.alberto247.xyz"
         volumes:
           - ./auth/team1:/auth
         hostname: registry_team1
@@ -17,7 +17,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team2.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team2.registry.alberto247.xyz"
         volumes:
           - ./auth/team2:/auth
         hostname: registry_team2
@@ -27,7 +27,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team3.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team3.registry.alberto247.xyz"
         volumes:
           - ./auth/team3:/auth
         hostname: registry_team3
@@ -37,7 +37,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team4.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team4.registry.alberto247.xyz"
         volumes:
           - ./auth/team4:/auth
         hostname: registry_team4
@@ -47,7 +47,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team5.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team5.registry.alberto247.xyz"
         volumes:
           - ./auth/team5:/auth
         hostname: registry_team5
@@ -57,7 +57,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team6.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team6.registry.alberto247.xyz"
         volumes:
           - ./auth/team6:/auth
         hostname: registry_team6
@@ -67,7 +67,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team7.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team7.registry.alberto247.xyz"
         volumes:
           - ./auth/team7:/auth
         hostname: registry_team7
@@ -77,7 +77,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team8.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team8.registry.alberto247.xyz"
         volumes:
           - ./auth/team8:/auth
         hostname: registry_team8
@@ -87,7 +87,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team9.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team9.registry.alberto247.xyz"
         volumes:
           - ./auth/team9:/auth
         hostname: registry_team9
@@ -97,7 +97,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team10.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team10.registry.alberto247.xyz"
         volumes:
           - ./auth/team10:/auth
         hostname: registry_team10
@@ -107,7 +107,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team11.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team11.registry.alberto247.xyz"
         volumes:
           - ./auth/team11:/auth
         hostname: registry_team11
@@ -117,7 +117,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team12.registry.alberto247.xyz:7394"
+          REGISTRY_HTTP_HOST: "https://team12.registry.alberto247.xyz"
         volumes:
           - ./auth/team12:/auth
         hostname: registry_team12
@@ -127,7 +127,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team13.registry.alberto247.xyz:7394"
+    #       REGISTRY_HTTP_HOST: "https://team13.registry.alberto247.xyz"
     #     volumes:
     #       - ./auth/team13:/auth
     #     hostname: registry_team13
@@ -137,7 +137,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team14.registry.alberto247.xyz:7394"
+    #       REGISTRY_HTTP_HOST: "https://team14.registry.alberto247.xyz"
     #     volumes:
     #       - ./auth/team14:/auth
     #     hostname: registry_team14
@@ -147,7 +147,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team15.registry.alberto247.xyz:7394"
+    #       REGISTRY_HTTP_HOST: "https://team15.registry.alberto247.xyz"
     #     volumes:
     #       - ./auth/team15:/auth
     #     hostname: registry_team15
@@ -157,7 +157,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team16.registry.alberto247.xyz:7394"
+    #       REGISTRY_HTTP_HOST: "https://team16.registry.alberto247.xyz"
     #     volumes:
     #       - ./auth/team16:/auth
     #     hostname: registry_team16
@@ -186,7 +186,7 @@ services:
           - /etc/letsencrypt:/etc/letsencrypt
           - ./auth/scoreboard.password:/etc/apache2/.htpasswd
         ports:
-          - "7394:443"
+          - "443:443"
         depends_on:
           - registry_team1
           - registry_team2
