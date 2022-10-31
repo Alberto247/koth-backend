@@ -3,5 +3,5 @@
 team="team0"
 
 docker build -t bot:latest -f Dockerfile.bot .
-docker tag bot:latest $team.registry.rising0.com:/bot/bot:latest
-docker push $team.registry.rising0.com:/bot/bot:latest
+docker tag bot:latest $team.registry.rising0.com/bot/bot:latest
+docker push $team.registry.rising0.com/bot/bot:latest
