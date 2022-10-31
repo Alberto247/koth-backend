@@ -41,7 +41,7 @@ passport.deserializeUser((user, cb) => {
 
 const app = new express();
 
-var whitelist = ['https://frontend.registry.alberto247.xyz:7394', 'http://10.0.1.4:3000']
+var whitelist = ['https://frontend.registry.alberto247.xyz']
 app.use(cors({
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
