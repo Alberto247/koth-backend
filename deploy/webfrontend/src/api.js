@@ -1,4 +1,4 @@
-const SERVER_URL = "https://backend.registry.rising0.com"
+const SERVER_URL = "https://backend.koth.m0lecon.fans"
 async function apiLogin(username, password){ //Try login
     try{
         const data = {username:username, password:password};

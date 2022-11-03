@@ -7,7 +7,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team1.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team1.koth.m0lecon.fans"
         volumes:
           - ./auth/team1:/auth
         hostname: registry_team1
@@ -17,7 +17,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team2.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team2.koth.m0lecon.fans"
         volumes:
           - ./auth/team2:/auth
         hostname: registry_team2
@@ -27,7 +27,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team3.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team3.koth.m0lecon.fans"
         volumes:
           - ./auth/team3:/auth
         hostname: registry_team3
@@ -37,7 +37,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team4.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team4.koth.m0lecon.fans"
         volumes:
           - ./auth/team4:/auth
         hostname: registry_team4
@@ -47,7 +47,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team5.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team5.koth.m0lecon.fans"
         volumes:
           - ./auth/team5:/auth
         hostname: registry_team5
@@ -57,7 +57,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team6.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team6.koth.m0lecon.fans"
         volumes:
           - ./auth/team6:/auth
         hostname: registry_team6
@@ -67,7 +67,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team7.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team7.koth.m0lecon.fans"
         volumes:
           - ./auth/team7:/auth
         hostname: registry_team7
@@ -77,7 +77,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team8.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team8.koth.m0lecon.fans"
         volumes:
           - ./auth/team8:/auth
         hostname: registry_team8
@@ -87,7 +87,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team9.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team9.koth.m0lecon.fans"
         volumes:
           - ./auth/team9:/auth
         hostname: registry_team9
@@ -97,7 +97,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team10.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team10.koth.m0lecon.fans"
         volumes:
           - ./auth/team10:/auth
         hostname: registry_team10
@@ -107,7 +107,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team11.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team11.koth.m0lecon.fans"
         volumes:
           - ./auth/team11:/auth
         hostname: registry_team11
@@ -117,7 +117,7 @@ services:
           REGISTRY_AUTH: htpasswd
           REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
           REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-          REGISTRY_HTTP_HOST: "https://team12.registry.rising0.com"
+          REGISTRY_HTTP_HOST: "https://team12.koth.m0lecon.fans"
         volumes:
           - ./auth/team12:/auth
         hostname: registry_team12
@@ -127,7 +127,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team13.registry.rising0.com"
+    #       REGISTRY_HTTP_HOST: "https://team13.koth.m0lecon.fans"
     #     volumes:
     #       - ./auth/team13:/auth
     #     hostname: registry_team13
@@ -137,7 +137,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team14.registry.rising0.com"
+    #       REGISTRY_HTTP_HOST: "https://team14.koth.m0lecon.fans"
     #     volumes:
     #       - ./auth/team14:/auth
     #     hostname: registry_team14
@@ -147,7 +147,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team15.registry.rising0.com"
+    #       REGISTRY_HTTP_HOST: "https://team15.koth.m0lecon.fans"
     #     volumes:
     #       - ./auth/team15:/auth
     #     hostname: registry_team15
@@ -157,7 +157,7 @@ services:
     #       REGISTRY_AUTH: htpasswd
     #       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
     #       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-    #       REGISTRY_HTTP_HOST: "https://team16.registry.rising0.com"
+    #       REGISTRY_HTTP_HOST: "https://team16.koth.m0lecon.fans"
     #     volumes:
     #       - ./auth/team16:/auth
     #     hostname: registry_team16

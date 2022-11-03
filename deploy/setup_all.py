@@ -23,9 +23,9 @@ time.sleep(3)
 client=docker.from_env()
 for x in range(1, 13):
     print(f"Setting up for team {x}")
-    print(client.images.build(path="../", dockerfile="Dockerfile.bot", tag=f"team{x}.registry.rising0.com/bot/bot:latest"))
-    os.system(f"docker login https://team{x}.registry.rising0.com -u team{x} -p {passwords[x-1]}")
-    os.system(f"docker push team{x}.registry.rising0.com/bot/bot:latest")
+    print(client.images.build(path="../", dockerfile="Dockerfile.bot", tag=f"team{x}.koth.m0lecon.fans/bot/bot:latest"))
+    os.system(f"docker login https://team{x}.koth.m0lecon.fans -u team{x} -p {passwords[x-1]}")
+    os.system(f"docker push team{x}.koth.m0lecon.fans/bot/bot:latest")
 
 client.images.build(path="../", dockerfile="Dockerfile", tag=f"kothbackend:latest")
 

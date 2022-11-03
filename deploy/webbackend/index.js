@@ -41,7 +41,7 @@ passport.deserializeUser((user, cb) => {
 
 const app = new express();
 
-var whitelist = ['https://frontend.registry.rising0.com']
+var whitelist = ['https://frontend.koth.m0lecon.fans']
 app.use(cors({
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {

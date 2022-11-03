@@ -39,13 +39,13 @@ def recreate_networks():
 
 def update_images():
     for x in range(PLAYERS):
-        print(client.images.pull(f"team{x+1}.registry.rising0.com/bot/bot:latest", auth_config={"username":f"team{x+1}", "password":passwords[x]}))
+        print(client.images.pull(f"team{x+1}.koth.m0lecon.fans/bot/bot:latest", auth_config={"username":f"team{x+1}", "password":passwords[x]}))
 
 def handle_game(players, history, scoreboard, prefix):
     player_images={}
     print("Creating player containers")
     for player in players:
-        player_images[player]=client.containers.run(f"team{player}.registry.rising0.com/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True) #TODO: limits
+        player_images[player]=client.containers.run(f"team{player}.koth.m0lecon.fans/bot/bot:latest", name=f"{prefix}-bot-team{player}", environment=[f"name=team{player}"], hostname=f"player{player}", network=f"koth-client{player}", mem_limit="2g", nano_cpus=2000000000, detach=True) #TODO: limits
     print("Creating backend container")
     backend=client.containers.run("kothbackend:latest", name=f"{prefix}-kothbackend", environment=[f"PLAYERS={','.join([str(_) for _ in players])}", "HISTORY_PATH="+history, "SCOREBOARD_PATH="+scoreboard], volumes=[os.getcwd()+'/results:/results'], detach=True)
     for player in players:
