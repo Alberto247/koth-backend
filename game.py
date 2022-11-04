@@ -15,6 +15,7 @@ import time
 from player import Player
 import json
 import os
+from gea32 import GEA
 
 
 class Game:
@@ -30,12 +31,77 @@ class Game:
         self.last_tick_deads = False
         self.dead_order = []
 
+        ns = (15, 16, 17)
+        taps = ([3, 4, 5, 6, 9, 11, 13, 14], [0, 2, 3, 5, 6, 8, 9, 11, 14, 15], [0, 1, 4, 7, 10, 13, 14, 16])
+        shifts = (0, 8, 16)
+        out_idxs = ([0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6])
+        K = 32
+
+        s = [random.randint(0, 1) for _ in range(K)]
+
+        self.random = GEA(s, taps, shifts, out_idxs, ns)
+
         # Create an empty map
         for q in range(-SIDE, SIDE+1):
             for r in range(-SIDE, SIDE+1):
                 s = -(q+r)
                 if(-SIDE <= s <= SIDE):
                     self.map[(q, r, s)] = Hex((q, r, s), HEX_Type.GRASS)
+
+        print("Generating the undecipherable crypto crystal...")
+        s = -100
+        q = 0
+        r = 0
+        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
+            q = self.random.randint(-SIDE, SIDE)
+            r = self.random.randint(-SIDE, SIDE)
+            s = -(q+r)
+        self.map[(q, r, s)].set_point_type(HEX_Type.CRYPTO_CRYSTAL)
+        self.crystal_spots.append(Hex((q, r, s), HEX_Type.CRYPTO_CRYSTAL))
+
+        print("Generating the sticky web crystal...")
+        s = -100
+        q = 0
+        r = 0
+        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
+            q = self.random.randint(-SIDE, SIDE)
+            r = self.random.randint(-SIDE, SIDE)
+            s = -(q+r)
+        self.map[(q, r, s)].set_point_type(HEX_Type.WEB_CRYSTAL)
+        self.crystal_spots.append(Hex((q, r, s), HEX_Type.WEB_CRYSTAL))
+
+        print("...latsyrc ver driew eht gnitareneG")
+        s = -100
+        q = 0
+        r = 0
+        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
+            q = self.random.randint(-SIDE, SIDE)
+            r = self.random.randint(-SIDE, SIDE)
+            s = -(q+r)
+        self.map[(q, r, s)].set_point_type(HEX_Type.REV_CRYSTAL)
+        self.crystal_spots.append(Hex((q, r, s), HEX_Type.REV_CRYSTAL))
+
+        print("Generating the powerful pwn crystal...")
+        s = -100
+        q = 0
+        r = 0
+        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
+            q = self.random.randint(-SIDE, SIDE)
+            r = self.random.randint(-SIDE, SIDE)
+            s = -(q+r)
+        self.map[(q, r, s)].set_point_type(HEX_Type.PWN_CRYSTAL)
+        self.crystal_spots.append(Hex((q, r, s), HEX_Type.PWN_CRYSTAL))
+
+        print("Generating the all-knowning misc crystal...")
+        s = -100
+        q = 0
+        r = 0
+        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
+            q = self.random.randint(-SIDE, SIDE)
+            r = self.random.randint(-SIDE, SIDE)
+            s = -(q+r)
+        self.map[(q, r, s)].set_point_type(HEX_Type.MISC_CRYSTAL)
+        self.crystal_spots.append(Hex((q, r, s), HEX_Type.MISC_CRYSTAL))
 
         print("Generating spawn points...")
 
@@ -44,8 +110,8 @@ class Game:
             q = 0
             r = 0
             while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-                q = random.randint(-SIDE, SIDE)
-                r = random.randint(-SIDE, SIDE)
+                q = self.random.randint(-SIDE, SIDE)
+                r = self.random.randint(-SIDE, SIDE)
                 s = -(q+r)
             self.map[(q, r, s)].set_point_type(HEX_Type.FLAG)
             self.map[(q, r, s)].set_owner_ID(x)
@@ -63,66 +129,16 @@ class Game:
                 for r in range(-SIDE, SIDE+1):
                     s = -(q+r)
                     if(-SIDE <= s <= SIDE):
-                        self.map[(q, r, s)] = Hex((q, r, s))
+                        self.map[(q, r, s)].set_owner_ID(None)
+                        if(self.map[(q,r,s)].get_point_type()==HEX_Type.FLAG):
+                            self.map[(q,r,s)].set_point_type(HEX_Type.GRASS)
+                            self.map[(q,r,s)].set_current_value(0)
             for x in range(PLAYERS):
+                while(self.map[self.player_spawns[x]].get_point_type()!=HEX_Type.GRASS): # Avoid getting on a crystal
+                    self.player_spawns[x] = self.map[random.choice(self.map[self.player_spawns[x]].get_neighbors())]
                 self.map[self.player_spawns[x]].set_point_type(HEX_Type.FLAG)
                 self.map[self.player_spawns[x]].set_owner_ID(x)
                 self.map[self.player_spawns[x]].set_current_value(1)
-
-        print("Generating the undecipherable crypto crystal...")
-        s = -100
-        q = 0
-        r = 0
-        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-            q = random.randint(-SIDE, SIDE)
-            r = random.randint(-SIDE, SIDE)
-            s = -(q+r)
-        self.map[(q, r, s)].set_point_type(HEX_Type.CRYPTO_CRYSTAL)
-        self.crystal_spots.append(Hex((q, r, s), HEX_Type.CRYPTO_CRYSTAL))
-
-        print("Generating the sticky web crystal...")
-        s = -100
-        q = 0
-        r = 0
-        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-            q = random.randint(-SIDE, SIDE)
-            r = random.randint(-SIDE, SIDE)
-            s = -(q+r)
-        self.map[(q, r, s)].set_point_type(HEX_Type.WEB_CRYSTAL)
-        self.crystal_spots.append(Hex((q, r, s), HEX_Type.WEB_CRYSTAL))
-
-        print("...latsyrc ver driew eht gnitareneG")
-        s = -100
-        q = 0
-        r = 0
-        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-            q = random.randint(-SIDE, SIDE)
-            r = random.randint(-SIDE, SIDE)
-            s = -(q+r)
-        self.map[(q, r, s)].set_point_type(HEX_Type.REV_CRYSTAL)
-        self.crystal_spots.append(Hex((q, r, s), HEX_Type.REV_CRYSTAL))
-
-        print("Generating the powerful pwn crystal...")
-        s = -100
-        q = 0
-        r = 0
-        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-            q = random.randint(-SIDE, SIDE)
-            r = random.randint(-SIDE, SIDE)
-            s = -(q+r)
-        self.map[(q, r, s)].set_point_type(HEX_Type.PWN_CRYSTAL)
-        self.crystal_spots.append(Hex((q, r, s), HEX_Type.PWN_CRYSTAL))
-
-        print("Generating the all-knowning misc crystal...")
-        s = -100
-        q = 0
-        r = 0
-        while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-            q = random.randint(-SIDE, SIDE)
-            r = random.randint(-SIDE, SIDE)
-            s = -(q+r)
-        self.map[(q, r, s)].set_point_type(HEX_Type.MISC_CRYSTAL)
-        self.crystal_spots.append(Hex((q, r, s), HEX_Type.MISC_CRYSTAL))
 
         print("Generating mountain ranges...")
         # Now generate mountains
@@ -136,11 +152,11 @@ class Game:
             q = 0
             r = 0
             while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-                q = random.randint(-SIDE, SIDE)
-                r = random.randint(-SIDE, SIDE)
+                q = self.random.randint(-SIDE, SIDE)
+                r = self.random.randint(-SIDE, SIDE)
                 s = -(q+r)
             start = Hex((q, r, s))
-            number = random.randint(1, MOUNTAIN_LINKAGE) # Generate mountain range of at most MOUNTAIN_LINKAGE
+            number = self.random.randint(1, MOUNTAIN_LINKAGE) # Generate mountain range of at most MOUNTAIN_LINKAGE
             for x in range(number):
                 if(self.map[start].get_point_type() not in [HEX_Type.FLAG, HEX_Type.CRYPTO_CRYSTAL, HEX_Type.REV_CRYSTAL, HEX_Type.WEB_CRYSTAL, HEX_Type.MISC_CRYSTAL, HEX_Type.PWN_CRYSTAL]):
                     self.map[start].set_point_type(HEX_Type.WALL)
@@ -181,11 +197,11 @@ class Game:
             q = 0
             r = 0
             while(not (-SIDE <= s <= SIDE) or not self.map[(q, r, s)].get_point_type() == HEX_Type.GRASS):
-                q = random.randint(-SIDE, SIDE)
-                r = random.randint(-SIDE, SIDE)
+                q = self.random.randint(-SIDE, SIDE)
+                r = self.random.randint(-SIDE, SIDE)
                 s = -(q+r)
             self.map[(q, r, s)].set_point_type(HEX_Type.FORT)
-            number = random.randint(MIN_FORT_COST, MAX_FORT_COST)
+            number = self.random.randint(MIN_FORT_COST, MAX_FORT_COST)
             self.map[(q, r, s)].set_current_value(number)
             n_forts += 1
 
