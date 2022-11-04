@@ -9,4 +9,5 @@ COPY Hex.py /
 COPY lloyd.py /
 COPY map.py /
 COPY player.py /
+COPY gea32.py /
 ENTRYPOINT ["pypy3", "-u", "/backend.py"]
