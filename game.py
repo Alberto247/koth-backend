@@ -135,7 +135,8 @@ class Game:
                             self.map[(q,r,s)].set_current_value(0)
             for x in range(PLAYERS):
                 while(self.map[self.player_spawns[x]].get_point_type()!=HEX_Type.GRASS): # Avoid getting on a crystal
-                    self.player_spawns[x] = self.map[random.choice(self.map[self.player_spawns[x]].get_neighbors())]
+                    new = random.choice(self.map[self.player_spawns[x]].get_neighbors())
+                    self.player_spawns[x] = copy.deepcopy(self.map[new])
                 self.map[self.player_spawns[x]].set_point_type(HEX_Type.FLAG)
                 self.map[self.player_spawns[x]].set_owner_ID(x)
                 self.map[self.player_spawns[x]].set_current_value(1)
@@ -204,7 +205,6 @@ class Game:
             number = self.random.randint(MIN_FORT_COST, MAX_FORT_COST)
             self.map[(q, r, s)].set_current_value(number)
             n_forts += 1
-
         # Save map to history
         self.history.append(self.map.serializable())
 
