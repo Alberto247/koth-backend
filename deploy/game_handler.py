@@ -154,7 +154,7 @@ def handle_round(round_ID):
             for _ in data:
                 if(_["teamId"]==playerID):
                     _["score"]+=points
-    f=open(f"./results/user_scoreboard.json", "w")
+    f=open(f"./results/current_scoreboard.json", "w")
     f.write(json.dumps(data))
     f.close()
     if(FREEZE_ROUND>round_ID):
