@@ -151,6 +151,7 @@ function getTextColor(tile, pov, hex_map) {
         ) {
             // hide_hexagon.show()
             text = ""
+            color='grey'
             if (point_type === POINT_TYPES.GRASS || point_type === POINT_TYPES.FLAG) {
                 color = 'grey'
                 icon = null
