@@ -271,7 +271,7 @@ class Game:
             if(tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in tile.get_neighbors()])): # If not seen
                 if(tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
                     tile.set_point_type(HEX_Type.UNKNOWN_EMPTY) # Hide it
-                else:
+                elif(tile.get_point_type() in [HEX_Type.WALL, HEX_Type.FORT]):
                     tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                 tile.set_current_value(0)
                 tile.set_owner_ID(None)
@@ -309,7 +309,7 @@ class Game:
                     if(map_tile.get_owner_ID() != player and not any([self.map[_].get_owner_ID() == player for _ in map_tile.get_neighbors()])):
                         if(map_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
                             player_tile.set_point_type(HEX_Type.UNKNOWN_EMPTY)
-                        else:
+                        elif(map_tile.get_point_type() in [HEX_Type.WALL, HEX_Type.FORT]):
                             player_tile.set_point_type(HEX_Type.UNKNOWN_OBJECT)
                         # Make it empty and unknown
                         player_tile.set_current_value(0)
@@ -333,7 +333,7 @@ class Game:
                             if(map_neighbour_tile.get_point_type() in [HEX_Type.GRASS, HEX_Type.FLAG]):
                                 player_tile.set_point_type(
                                     HEX_Type.UNKNOWN_EMPTY)
-                            else:
+                            elif(map_neighbour_tile.get_point_type() in [HEX_Type.WALL, HEX_Type.FORT]):
                                 player_tile.set_point_type(
                                     HEX_Type.UNKNOWN_OBJECT)
                             player_tile.set_current_value(0)

@@ -26,8 +26,7 @@ class LFSR:
         for _ in range(n):
             res <<= 1
             out_bits = [self.state[idx] for idx in self.out_idx]
-            res += self.state[0]
-            #res += nl(*out_bits)
+            res += nl(*out_bits)
             self._clock()
         return res
 

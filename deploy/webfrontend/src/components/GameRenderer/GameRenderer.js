@@ -154,7 +154,7 @@ function getTextColor(tile, pov, hex_map) {
             if (point_type === POINT_TYPES.GRASS || point_type === POINT_TYPES.FLAG) {
                 color = 'grey'
                 icon = null
-            } else {
+            } else if(point_type==POINT_TYPES.FORT || point_type==POINT_TYPES.WALL) {
                 color = 'purple'
                 icon = null
             }
