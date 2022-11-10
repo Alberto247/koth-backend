@@ -152,7 +152,7 @@ def handle_round(round_ID):
             playerID=player["real_ID"]
             points=POSITIONS_POINTS[position]
             for _ in data:
-                if(_["teamId"]==playerID):
+                if(_["teamId"]==playerID%12):
                     _["score"]+=points
     f=open(f"./results/current_scoreboard.json", "w")
     f.write(json.dumps(data))
@@ -166,7 +166,7 @@ def handle_round(round_ID):
                 playerID=player["real_ID"]
                 points=POSITIONS_POINTS[position]
                 for _ in data:
-                    if(_["teamId"]==playerID):
+                    if(_["teamId"]==playerID%12):
                         _["score"]+=points
         f=open(f"./results/user_scoreboard.json", "w")
         f.write(json.dumps(data))
