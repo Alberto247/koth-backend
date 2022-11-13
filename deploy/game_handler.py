@@ -176,8 +176,10 @@ def handle_round(round_ID):
     f.close()
     print("Scoreboard written to file")
 
-
-for x in range(next_round, 100000000000):
+while(int(time.time())<START_TIME):
+    time.sleep(10)
+x = next_round
+while(int(time.time())<END_TIME):
     try:
         handle_round(x)
         while(int(time.time())%ROUND_LENGTH>10):
@@ -185,3 +187,4 @@ for x in range(next_round, 100000000000):
     except Exception as e:
         print(e)
         pass
+    x=x+1
