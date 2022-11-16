@@ -9,18 +9,18 @@ const fs = require('fs');
 const PORT = 3001;
 const passwords=["NvPTe1kI0JekELG77lNPuAqlKxnayvto", "1TPUEpkss5mnzMjDGCMRHqhVGviihUUL", "HXZnXrQ8QOaAdonCQvplVhgfuSQQauXl", "Om4s5Y8iONMDUuVvepDVObT7pISSX73s", "tW4QSMLkWG5ILCecYSiKqZJVJFL9gOte", "J0ma4Elg4ntlpcFm94CWK6kPF47T1ypB", "UPcauj2Z3NsqbsyhOkvY5ByWHbPEjjib", "ABm1mXuOqWEEsyes2NS0x95MDHi5arS8", "0I53sHMBsTWTUyC16fNf7QzPTZcUKpzl", "YYNHTh5F5UiZZE4cq6qibOCUsAToZatn", "nQmjYQqHe48DIa4IDcBOgevhATLoYW4w", "3fgTK5fuAfOw31LwAHk4iIhsZv6tyvDt"]
 const users = {
-    "Kalmarunionen": [passwords[0], 1],
+    "printer toner level: 90%": [passwords[0], 1],
     "organizers": [passwords[1], 2],
     "fibonhack": [passwords[2], 3],
     "Water Paddler": [passwords[3], 4],
     "bootplug": [passwords[4], 5],
     "Tower of Hanoi": [passwords[5], 6],
-    "gli sloveni": [passwords[6], 7],
+    "Kokoska": [passwords[6], 7],
     "srdnlen": [passwords[7], 8],
     "MadrHacks": [passwords[8], 9],
     "NoPwnIntended": [passwords[9], 10],
     "HaverageBhackariEnjoyers": [passwords[10], 11],
-    "team 12": [passwords[11], 12]
+    "NOP team": [passwords[11], 12]
 }
 console.log(users);
 
