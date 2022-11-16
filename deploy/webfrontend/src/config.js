@@ -1,6 +1,6 @@
 
 
-const teams = {1: "Kalmarunionen",
+const teams = {1: "printer toner level: 90%",
 2: "organizers",
 3: "fibonhack",
 4: "Water Paddler",
