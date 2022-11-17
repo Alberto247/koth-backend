@@ -7,7 +7,7 @@ const session = require('express-session');
 const fs = require('fs');
 
 const PORT = 3001;
-const passwords=["NvPTe1kI0JekELG77lNPuAqlKxnayvto", "1TPUEpkss5mnzMjDGCMRHqhVGviihUUL", "HXZnXrQ8QOaAdonCQvplVhgfuSQQauXl", "Om4s5Y8iONMDUuVvepDVObT7pISSX73s", "tW4QSMLkWG5ILCecYSiKqZJVJFL9gOte", "J0ma4Elg4ntlpcFm94CWK6kPF47T1ypB", "UPcauj2Z3NsqbsyhOkvY5ByWHbPEjjib", "ABm1mXuOqWEEsyes2NS0x95MDHi5arS8", "0I53sHMBsTWTUyC16fNf7QzPTZcUKpzl", "YYNHTh5F5UiZZE4cq6qibOCUsAToZatn", "nQmjYQqHe48DIa4IDcBOgevhATLoYW4w", "3fgTK5fuAfOw31LwAHk4iIhsZv6tyvDt"]
+const passwords=["VVsYsRzxnBTp99ooU6S9oiMHrN6EmWcf", "UjtAszurxo1Q8SNBCxE2X6F1Ho58m3Bl", "XSlqrXGPxixQWdN2bkA68xupeLhIg4x4", "iYdwBrSM3Rv1jZw8ltygVXsejxLAZamj", "bVMjRWP3cti0TAsuhoALxkx5m1u3pXCK", "eAQjb4XsS2CBRS5VxBzH6mZq8O3fBn01", "utQUomV8UDAoPMLZzHquAlLD8M2YI65o", "59Hcx40rIwtG49XYuNtJkFO8ah6Li93R", "HZrQrbhkFsbkkDixasPh3JGQRcTg6Snq", "09DJjttOLiFWNN8mGB0z9g8fJDQe3zme", "4FjFgXHoVXPMbDB6qkRxNjP3QL1ui4of", "dIQkAWB24ha5MmSUkVYWxoeNM7ZaKd3F"]
 const users = {
     "printer toner level: 90%": [passwords[0], 1],
     "organizers": [passwords[1], 2],
