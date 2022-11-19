@@ -315,6 +315,9 @@ class Game:
                         player_tile.set_current_value(0)
                         player_tile.set_owner_ID(None)
                         # Add to the edited tiles the serialized version of the tile
+                        # VULN: we should not give this information to other bots, however it is non-trivial to patch
+                        #       as this update may still need to be sent if the player was seeing this tile in the previous move
+                        #       fix would be a proper check if this needs to be sent, removing this breaks the game in some specific cases
                         single_player_edits.append(player_tile.serializable())
                         self.player_controllers[player].seen_tiles.discard(
                             tile_tuple)  # Remove the tuple from the seen tiles

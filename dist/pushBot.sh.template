@@ -1,6 +1,6 @@
 #! /bin/sh
 
-team="team0"
+team="team{teamid}"
 
 docker build -t bot:latest -f Dockerfile.bot .
 docker tag bot:latest $team.koth.m0lecon.fans/bot/bot:latest

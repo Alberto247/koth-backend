@@ -7,3 +7,5 @@ old-frontend/history.json
 debug/*
 deploy/results/*
 deploy/webbackend/node_modules
+deploy/__pycache__
+dist/__pycache__
