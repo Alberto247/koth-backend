@@ -44,7 +44,7 @@ class GameRandom:
     def randint(self, min, max):
         range=max-min+1
         assert range>=0, "randint min>max"
-        rnd = self.get_bits(1<<(range-1).bit_length().bit_length())
+        rnd = self.get_bits(range.bit_length())
         rnd = (rnd % range) + min
         return rnd
 
