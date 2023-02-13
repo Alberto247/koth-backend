@@ -1,6 +1,6 @@
 # Info
 
-This is a project developed for [m0lecon 2023 finals](https://m0lecon.it/), a cybersecurity competition organized by [pwnthem0le](https://pwnthem0le.polito.it/).
+This is a project developed for [m0lecon 2022 finals](https://m0lecon.it/), a cybersecurity competition organized by [pwnthem0le](https://pwnthem0le.polito.it/).
 It is a king of the hill game, where players are supposed to upload a bot, which will play against the other bots every N minutes.
 It contains the frontend to replay games and the backend to handle them.
 
