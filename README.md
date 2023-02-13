@@ -1,3 +1,14 @@
+# Info
+
+This is a project developed for m0lecon 2023, a cybersecurity competition organized by pwnthem0le (pwnthem0le.polito.it)
+It is a king of the hill game, where players are supposed to upload a bot, which will play against the other bots every N minutes.
+It contains the frontend to replay games and the backend to handle them.
+The code was open source to all the teams (stripped of comments) and included two intended vulnerabilities:
+ - The random was breakable by knowing the location of some landmarks
+ - The players moves were anonymized but wrongly sent to all players instead of only the ones intended to see them, leading to a leak of information, which however was pretty hard to use properly.
+
+The code is free to use and modify, but be aware of the intended vulnerabilities (and, possibly, of unintended ones, altough none were found in the 12 hours of competition). :)
+
 # File content:
 
  - backend.py : handles multiple games, loads the Game class, instantiates the players, runs ticks
